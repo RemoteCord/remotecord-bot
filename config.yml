@@ -1,0 +1,17 @@
+config:
+  bot:
+    ADMIN: []
+    EMBED_COLOR: "#5865f2"
+    LANGUAGE: "en"
+    BETA_MODE: false
+  emojis:
+    success: "✅"
+    error: "❌"
+  colors:
+    burple: "#5865f2"
+    red: "#ed4245"
+    green: "#57f287"
+    yellow: "#fee75c"
+    purple: "#a443f0"
+    black: "#23272a"
+    white: "#f8f9fa"
