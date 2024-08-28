@@ -1,10 +1,13 @@
 import yaml from "js-yaml";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { Logger } from "./Logger";
 import { config } from "dotenv";
-import { type Config, type EnvConfig, type YamlConfig } from "@/types/Config";
+import type { Config, EnvConfig, YamlConfig, ConfigColors } from "@/types/Config";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 config();
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export class ConfigService {
 	private yamlConfig: YamlConfig | undefined;
@@ -89,7 +92,7 @@ export class ConfigService {
 				...(config?.bot ?? defaultConfig.bot)
 			},
 			emojis: config?.emojis ?? defaultConfig.emojis,
-			colors: config?.colors ?? defaultConfig.colors
+			colors: config?.colors ?? (defaultConfig.colors as ConfigColors)
 		};
 	}
 

@@ -4,12 +4,14 @@ import { EventRegister } from "@/registers/EventRegister";
 import { Logger } from "@/shared/Logger";
 import type { Command } from "@/structures/Command";
 import { type Config } from "@/types/Config";
+import { ClusterClient, getInfo } from "discord-hybrid-sharding";
 import { AllowedMentionsTypes, Client, Collection, GatewayIntentBits, Partials } from "discord.js";
 
 export class DiscordClient extends Client {
 	public config: Config;
 	public logger: typeof Logger;
 	public i18n = Language;
+	public cluster: ClusterClient<DiscordClient>;
 
 	public commands = new Collection<string, Command>();
 	public selectMenus = new Collection<string, Command>();
@@ -19,7 +21,8 @@ export class DiscordClient extends Client {
 
 	constructor(config: Config) {
 		super({
-			shards: "auto",
+			shards: getInfo().SHARD_LIST,
+			shardCount: getInfo().TOTAL_SHARDS,
 			allowedMentions: {
 				parse: [AllowedMentionsTypes.Everyone, AllowedMentionsTypes.Role, AllowedMentionsTypes.User],
 				repliedUser: false
@@ -36,6 +39,7 @@ export class DiscordClient extends Client {
 
 		this.logger = Logger;
 		this.config = config;
+		this.cluster = new ClusterClient(this);
 	}
 
 	async start(): Promise<void> {

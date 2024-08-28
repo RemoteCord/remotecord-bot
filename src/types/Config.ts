@@ -38,7 +38,7 @@ interface ConfigEmojis {
 	error: string;
 }
 
-interface ConfigColors {
+export interface ConfigColors {
 	burple: ColorResolvable;
 	red: ColorResolvable;
 	green: ColorResolvable;
