@@ -1,9 +1,10 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
-import { Event } from "@/structures/Event";
-import { type ChatInputCommandInteraction, Events, type Interaction } from "discord.js";
-import { CommandHandler } from "@/handlers/CommandHandler";
+import { DiscordEvent } from "@/structures/DiscordEvent";
+import { Events, type Interaction } from "discord.js";
+import { InteractionHandler } from "@/handlers/InteractionHandler";
+import { PermissionHandler } from "@/handlers/PermissionHandler";
 
-export default class extends Event {
+export default class extends DiscordEvent {
 	constructor() {
 		super({
 			name: Events.InteractionCreate,
@@ -13,27 +14,9 @@ export default class extends Event {
 	}
 
 	async run(client: DiscordClient, interaction: Interaction) {
-		if (interaction.isCommand()) {
-			interaction = interaction as ChatInputCommandInteraction;
+		if (!interaction.isCommand()) return;
 
-			const command = client.commands.get(interaction.commandName);
-
-			if (!command) return;
-
-			const handler = new CommandHandler({
-				client,
-				interaction,
-				color: client.config.colors.burple,
-				language: client.config.bot.LANGUAGE,
-				prefix: client.config.bot.PREFIX
-			});
-
-			try {
-				await command.run(client, handler);
-			} catch (error) {
-				console.error(error);
-				await interaction.reply({ content: "There was an error while executing this command!", ephemeral: true });
-			}
-		}
+		if (interaction.isChatInputCommand())
+			await InteractionHandler.runChatCommand(client, interaction);
 	}
 }

@@ -1,14 +1,12 @@
-import { ClusterManager } from "discord-hybrid-sharding";
+import { ClusterManager, HeartbeatManager, ReClusterManager } from "discord-hybrid-sharding";
 import axios from "axios";
 import type { ShardRequest } from "@/types/Shard";
 import { ConfigService } from "@/shared/ConfigService";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 const configData = new ConfigService();
 const { config } = configData;
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const botPath = `${process.cwd()}/src/bot.ts`;
 
 async function getRecommendedShards() {
 	const response = await axios.get<ShardRequest>("https://discord.com/api/v10/gateway/bot", {
@@ -44,13 +42,31 @@ async function start() {
 	const clusterTotal = Math.round(recommendedShards.totalShards / 16);
 
 	// Crear una instancia de ClusterManager
-	const manager = new ClusterManager(join(__dirname, "./bot.ts"), {
+	const manager = new ClusterManager(botPath, {
 		totalShards: recommendedShards.totalShards,
 		shardsPerClusters: 16,
 		totalClusters: recommendedShards.large ? clusterTotal : "auto",
-		mode: "worker",
-		token
+		mode: "process",
+		token,
+		execArgv: [...process.execArgv],
+		restarts: {
+			max: 5,
+			interval: 60000 * 60
+		}
 	});
+
+	manager.extend(
+		new HeartbeatManager({
+			interval: 2000,
+			maxMissedHeartbeats: 5
+		})
+	);
+
+	manager.extend(
+		new ReClusterManager({
+			restartMode: "rolling"
+		})
+	);
 
 	manager.on("clusterCreate", (cluster) => {
 		clusterId = cluster.id;

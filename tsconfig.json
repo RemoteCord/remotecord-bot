@@ -1,17 +1,21 @@
 {
 	"compilerOptions": {
 		"target": "ESNext",
+		"lib": ["ESNext"],
 		"module": "ESNext",
-		"allowJs": true,
+		"moduleResolution": "Node",
+		"allowImportingTsExtensions": true,
+		"resolveJsonModule": true,
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"noUnusedLocals": true,
+		"skipLibCheck": true,
 		"outDir": "dist",
 		"declarationDir": "dist",
-		"noImplicitAny": false,
 		"rootDir": "src",
-		"declaration": true,
-		"strict": true,
-		"moduleResolution": "node",
-		"esModuleInterop": true,
-		"skipLibCheck": true,
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["src/*"]

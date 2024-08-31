@@ -1,9 +1,9 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
-import { Event } from "@/structures/Event";
+import { DiscordEvent } from "@/structures/DiscordEvent";
 import { Locales, LanguageFile } from "@/types/Language";
 import { Events } from "discord.js";
 
-export default class extends Event {
+export default class extends DiscordEvent {
 	constructor() {
 		super({
 			name: Events.ClientReady,

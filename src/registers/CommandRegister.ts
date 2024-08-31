@@ -2,11 +2,10 @@ import type { DiscordClient } from "@/clients/DiscordClient";
 import type { Command } from "@/structures/Command";
 import { REST, Routes } from "discord.js";
 import { readdirSync } from "node:fs";
-import { join } from "node:path";
 
 export class CommandRegister {
 	static async registerCommands(client: DiscordClient) {
-		const commandFolderPath = join(__dirname, "..", "commands");
+		const commandFolderPath = `${process.cwd()}/src/commands`;
 		const commandFolders = readdirSync(commandFolderPath);
 		for (const folder of commandFolders) {
 			const commandFiles = readdirSync(`${commandFolderPath}/${folder}`).filter((file) => file.endsWith(".ts"));

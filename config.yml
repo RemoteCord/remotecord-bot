@@ -1,6 +1,6 @@
 config:
   bot:
-    ADMIN: []
+    ADMIN: ["403917639673577482"]
     EMBED_COLOR: "#5865f2"
     LANGUAGE: "en"
     BETA_MODE: false

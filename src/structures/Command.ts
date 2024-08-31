@@ -1,7 +1,12 @@
-import { type DiscordClient } from "@/clients/DiscordClient";
-import { type CommandHandler } from "@/handlers/CommandHandler";
+import type { DiscordClient } from "@/clients/DiscordClient";
+import type { CommandHandler } from "@/handlers/CommandHandler";
+import type { CustomPermissions } from "@/types/Permissions";
 import type { CommandProps } from "@/types/Structures";
-import type { SlashCommandBuilder } from "discord.js";
+import type {
+	PermissionResolvable,
+	SlashCommandBuilder,
+	SlashCommandOptionsOnlyBuilder
+} from "discord.js";
 
 export class Command {
 	name: string;
@@ -9,24 +14,40 @@ export class Command {
 	category: string;
 	aliases: string[];
 	interaction: boolean;
-	permissions: string[];
+	userPermissions: PermissionResolvable[];
+	botPermissions: PermissionResolvable[];
+	customPermissions: CustomPermissions[];
 	premium: boolean;
 	enabled: boolean;
-	slash: SlashCommandBuilder | null;
+	slash: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder | undefined;
 
-	constructor({ name, description, category, aliases, interaction, permissions, premium, enabled, slash }: CommandProps) {
+	constructor({
+		name,
+		description,
+		category,
+		aliases,
+		interaction,
+		botPermissions,
+		userPermissions,
+		customPermissions,
+		premium,
+		enabled,
+		slash
+	}: CommandProps) {
 		this.name = name;
 		this.description = description;
 		this.category = category;
 		this.aliases = aliases || [];
 		this.interaction = interaction || false;
-		this.permissions = permissions || [];
+		this.userPermissions = userPermissions || [];
+		this.botPermissions = botPermissions || [];
+		this.customPermissions = customPermissions || [];
 		this.premium = premium || false;
 		this.enabled = enabled || true;
-		this.slash = slash || null;
+		this.slash = slash || undefined;
 	}
 
-	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]) {
+	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<any> {
 		throw new Error("Method not implemented.");
 	}
 }

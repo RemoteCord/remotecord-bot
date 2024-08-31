@@ -3,11 +3,11 @@ import { readFileSync } from "node:fs";
 import { Logger } from "./Logger";
 import { config } from "dotenv";
 import type { Config, EnvConfig, YamlConfig, ConfigColors } from "@/types/Config";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import nodesFile from "../../nodes.json";
+
 config();
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const path = process.cwd();
 
 export class ConfigService {
 	private yamlConfig: YamlConfig | undefined;
@@ -36,8 +36,12 @@ export class ConfigService {
 		}
 
 		for (const key of defaultConfigKeys) {
+			// @ts-expect-error key is a valid key
+			const config = this.config![key];
+			// @ts-expect-error key is a valid key
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			const keys = Object.keys(this.config![key]);
+			// @ts-expect-error key is a valid key
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			const defaultKeys = Object.keys(this.getDefaultConfig()[key]);
 			const missingKeys = defaultKeys.filter((key) => !keys.includes(key));
@@ -48,7 +52,9 @@ export class ConfigService {
 			}
 
 			for (const key of keys) {
+				// @ts-expect-error key is a valid key
 				const value = this.config![key];
+				// @ts-expect-error key is a valid key
 				const defaultValue = this.getDefaultConfig()[key];
 				if (typeof value !== typeof defaultValue) {
 					this.logger.error(`Invalid value type for key [${key}]`);
@@ -61,7 +67,7 @@ export class ConfigService {
 	}
 
 	getYamlConfig() {
-		const pathToConfig = join(__dirname, "..", "..", "config.yml");
+		const pathToConfig = `${path}/config.yml`;
 		if (!pathToConfig) this.logger.error("Config file not found");
 		const doc = yaml.load(readFileSync(pathToConfig, "utf8"));
 		if (!doc) this.logger.error("Config file is empty");
@@ -91,6 +97,9 @@ export class ConfigService {
 				PREFIX: envConfig.PREFIX ?? defaultConfig.bot.PREFIX,
 				...(config?.bot ?? defaultConfig.bot)
 			},
+			lavalink: {
+				nodes: nodesFile.nodes ?? defaultConfig.lavalink
+			},
 			emojis: config?.emojis ?? defaultConfig.emojis,
 			colors: config?.colors ?? (defaultConfig.colors as ConfigColors)
 		};
@@ -106,6 +115,9 @@ export class ConfigService {
 				ADMIN: [],
 				LANGUAGE: "en",
 				BETA_MODE: false
+			},
+			lavalink: {
+				nodes: []
 			},
 			emojis: {
 				success: "✅",

@@ -1,9 +1,9 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import { CommandHandler } from "@/handlers/CommandHandler";
-import { Event } from "@/structures/Event";
+import { DiscordEvent } from "@/structures/DiscordEvent";
 import { ChannelType, Events, type Message } from "discord.js";
 
-export default class extends Event {
+export default class extends DiscordEvent {
 	constructor() {
 		super({
 			name: Events.MessageCreate,

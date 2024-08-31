@@ -1,4 +1,5 @@
-import { type ColorResolvable } from "discord.js";
+import type { ColorResolvable } from "discord.js";
+import type { RainlinkNodeOptions } from "rainlink";
 
 export interface EnvConfig extends NodeJS.ProcessEnv {
 	DISCORD_CLIENT_TOKEN?: string;
@@ -9,7 +10,12 @@ export interface EnvConfig extends NodeJS.ProcessEnv {
 export interface Config {
 	bot: ConfigBot;
 	emojis: ConfigEmojis;
+	lavalink: ConfigLavalink;
 	colors: ConfigColors;
+}
+
+export interface ConfigLavalink {
+	nodes: RainlinkNodeOptions[];
 }
 
 export interface YamlConfig {

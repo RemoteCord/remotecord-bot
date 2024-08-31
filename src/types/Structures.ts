@@ -1,10 +1,22 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
-import type { Message, SlashCommandBuilder } from "discord.js";
+import type {
+	Message,
+	PermissionResolvable,
+	SlashCommandBuilder,
+	SlashCommandOptionsOnlyBuilder
+} from "discord.js";
+import type { RainlinkEventsInterface } from "rainlink";
+import type { CustomPermissions } from "./Permissions";
 
-export interface EventProps {
+export interface DiscordEventProps {
 	name: string;
 	enabled: boolean;
 	rest: boolean;
+}
+
+export interface RainlinkEventProps {
+	name: keyof RainlinkEventsInterface;
+	enabled: boolean;
 }
 
 export interface CommandClass {
@@ -18,9 +30,11 @@ export interface CommandProps {
 	enabled: boolean;
 	aliases?: string[];
 	interaction?: boolean;
-	permissions?: string[];
+	userPermissions: PermissionResolvable[];
+	botPermissions: PermissionResolvable[];
+	customPermissions: CustomPermissions[];
 	premium?: boolean;
-	slash?: SlashCommandBuilder;
+	slash?: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
 }
 
 export interface RunArgs {

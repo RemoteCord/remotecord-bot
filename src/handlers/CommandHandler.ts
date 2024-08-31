@@ -9,20 +9,24 @@ import {
 	type Channel,
 	type ColorResolvable,
 	CommandInteraction,
+	type Guild,
 	type GuildBasedChannel,
 	type GuildMember,
 	type InteractionReplyOptions,
 	InteractionResponse,
 	type Message,
 	type MessageCreateOptions,
+	type MessageEditOptions,
 	type MessagePayload,
 	type MessageReplyOptions,
-	type Role
+	type Role,
+	type TextBasedChannel,
+	type User
 } from "discord.js";
 
 interface CommandHandlerProps {
 	client: DiscordClient;
-	interaction?: CommandInteraction | InteractionResponse;
+	interaction?: CommandInteraction;
 	message?: Message;
 	color: ColorResolvable;
 	language: string;
@@ -31,8 +35,12 @@ interface CommandHandlerProps {
 
 export class CommandHandler {
 	public client: DiscordClient;
-	public interaction?: CommandInteraction | InteractionResponse;
+	public interaction?: CommandInteraction;
 	public message?: Message;
+	public user: User;
+	public member?: GuildMember | null;
+	public channel?: TextBasedChannel | null;
+	public guild?: Guild | null;
 	public color: ColorResolvable;
 	public language: string;
 	public prefix: string;
@@ -44,34 +52,47 @@ export class CommandHandler {
 		this.color = color;
 		this.language = language;
 		this.prefix = prefix;
+
+		this.user = interaction ? interaction.user : message!.author;
+		this.member = interaction ? (interaction.member as GuildMember) : message!.member;
+		this.channel = interaction ? interaction.channel : message!.channel;
+		this.guild = interaction ? interaction.guild : message!.guild;
 	}
 
-	public async deferReply() {
-		if (this.interaction && this.interaction instanceof CommandInteraction) {
-			const data = await this.interaction.deferReply({ ephemeral: false });
-			this.interaction = data;
-			return data;
+	public async deferReply(): Promise<CommandInteraction | Message | undefined> {
+		if (this.interaction instanceof CommandInteraction) {
+			await this.interaction.deferReply({ ephemeral: false });
+			return this.interaction;
 		}
 
-		const data = await this.message?.reply(`**${this.client.user?.username}** is thinking...`);
-		this.message = data;
-		return data;
+		this.message = await this.message?.reply(`**${this.client.user?.username}** is thinking...`);
+		return this.message;
 	}
 
 	public async editReply(
-		content: string | MessagePayload | MessageCreateOptions
+		content: string | MessagePayload | MessageEditOptions
 	): Promise<Message | InteractionResponse<BooleanCache<CacheType>> | undefined> {
-		if (this?.interaction) {
-			if (this.interaction instanceof InteractionResponse) return this.interaction.edit(content);
+		if (this.interaction instanceof InteractionResponse) {
+			return this.interaction.edit(content);
+		}
+
+		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.editReply(content);
 		}
 
-		this.client.logger.error("Edit reply is not supported in message commands.");
+		if (this.message) {
+			return this.message.edit(content);
+		}
+
+		this.client.logger.error("Edit reply is not supported.");
 	}
 
 	public async reply(options: InteractionReplyOptions | MessageReplyOptions): Promise<Message | InteractionResponse<BooleanCache<CacheType>>> {
-		if (this?.interaction) {
-			if (this.interaction instanceof InteractionResponse) return this.interaction.edit(options);
+		if (this.interaction instanceof InteractionResponse) {
+			return this.interaction.edit(options);
+		}
+
+		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.reply(options as InteractionReplyOptions);
 		}
 
@@ -79,12 +100,15 @@ export class CommandHandler {
 	}
 
 	public ghostReply(content: InteractionReplyOptions): Promise<InteractionResponse<BooleanCache<CacheType>> | Message> | undefined {
-		if (this?.interaction) {
-			if (this.interaction instanceof InteractionResponse) return this.interaction.edit(content);
+		if (this.interaction instanceof InteractionResponse) {
+			return this.interaction.edit(content);
+		}
+
+		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.reply({ ...content, ephemeral: true });
 		}
 
-		this.client.logger.error("Ghost reply is not supported in message commands.");
+		this.client.logger.error("Ghost reply is not supported for message commands.");
 	}
 
 	public async send(content: string | MessagePayload | MessageCreateOptions): Promise<Message> {
@@ -95,7 +119,7 @@ export class CommandHandler {
 	}
 
 	public getArgs(): unknown[] {
-		if (this?.interaction && this.interaction instanceof CommandInteraction) {
+		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.options.data.map((option) => option.value);
 		}
 
@@ -103,7 +127,7 @@ export class CommandHandler {
 	}
 
 	public getAttachments(): Attachment[] {
-		if (this?.interaction && this.interaction instanceof CommandInteraction) {
+		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.options.data.map((option) => option.attachment!) || [];
 		}
 
@@ -111,7 +135,7 @@ export class CommandHandler {
 	}
 
 	public getMemberMentions(): Array<GuildMember | APIInteractionDataResolvedGuildMember> {
-		if (this?.interaction && this.interaction instanceof CommandInteraction) {
+		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.options.data.map((option) => option.member!) || [];
 		}
 
@@ -119,7 +143,7 @@ export class CommandHandler {
 	}
 
 	public getChannelMentions(): Array<GuildBasedChannel | APIInteractionDataResolvedChannel | Channel> {
-		if (this?.interaction && this.interaction instanceof CommandInteraction) {
+		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.options.data.map((option) => option.channel!) || [];
 		}
 
@@ -127,7 +151,7 @@ export class CommandHandler {
 	}
 
 	public getRoleMentions(): Array<Role | APIRole> {
-		if (this?.interaction && this.interaction instanceof CommandInteraction) {
+		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.options.data.map((option) => option.role!) || [];
 		}
 

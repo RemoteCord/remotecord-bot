@@ -1,0 +1,12 @@
+{
+	"nodes": [
+		{
+			"name": "Kenabot Node",
+			"host": "85.10.195.68",
+			"port": 2334,
+			"auth": "m.ab4@WW_223",
+			"driver": "lavalink/v4/koinu",
+			"secure": false
+		}
+	]
+}

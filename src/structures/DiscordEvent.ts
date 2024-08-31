@@ -1,7 +1,7 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { EventProps } from "@/types/Structures";
 
-export class Event {
+export class DiscordEvent {
 	name: string;
 	enabled: boolean;
 	rest: boolean;
