@@ -1,5 +1,5 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
-import type { ChatInputCommandInteraction } from "discord.js";
+import type { ButtonComponent, ButtonInteraction, ChatInputCommandInteraction } from "discord.js";
 import { CommandHandler } from "./CommandHandler";
 import { PermissionHandler } from "./PermissionHandler";
 
@@ -44,5 +44,17 @@ export class InteractionHandler {
 				ephemeral: true
 			});
 		}
+	}
+
+	static async runButton(client: DiscordClient, interaction: ButtonInteraction): Promise<void> {
+		const { customId } = interaction.component as ButtonComponent;
+
+		console.log("Running button", customId);
+
+		if (customId === "confirm")
+			await interaction.reply({
+				content: "Confirmed!",
+				ephemeral: true
+			});
 	}
 }

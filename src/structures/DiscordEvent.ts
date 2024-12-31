@@ -11,8 +11,4 @@ export class DiscordEvent {
 		this.enabled = enabled || true;
 		this.rest = rest;
 	}
-
-	async run(client: DiscordClient, ...args: any[]): Promise<void> {
-		throw new Error("Method not implemented.");
-	}
 }

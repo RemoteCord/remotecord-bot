@@ -42,3 +42,11 @@ export interface RunArgs {
 	msg: Message;
 	args: any[];
 }
+
+export interface EventProps {
+	name: string;
+
+	enabled?: boolean;
+
+	rest: boolean;
+}

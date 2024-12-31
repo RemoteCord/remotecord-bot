@@ -1,7 +1,7 @@
 {
 	"nodes": [
 		{
-			"name": "Kenabot Node",
+			"name": "Kenabot Beta",
 			"host": "85.10.195.68",
 			"port": 2334,
 			"auth": "m.ab4@WW_223",

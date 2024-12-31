@@ -12,7 +12,7 @@ export default class extends DiscordEvent {
 		});
 	}
 
-	async run(client: DiscordClient, message: Message) {
+	run = async (client: DiscordClient, message: Message) => {
 		if (message.author.bot) return;
 		if (message.channel.type === ChannelType.DM) return;
 
@@ -40,5 +40,5 @@ export default class extends DiscordEvent {
 			console.error(error);
 			await message.reply({ content: "There was an error while executing this command!" });
 		}
-	}
+	};
 }
