@@ -11,4 +11,7 @@ export class DiscordEvent {
 		this.enabled = enabled || true;
 		this.rest = rest;
 	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	run = (client: DiscordClient, ...args: any[]): any => {};
 }

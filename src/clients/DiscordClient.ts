@@ -6,9 +6,12 @@ import type { Command } from "@/structures/Command";
 import type { Config } from "@/types/Config";
 import { ClusterClient, getInfo } from "discord-hybrid-sharding";
 import { AllowedMentionsTypes, Client, Collection, GatewayIntentBits, Partials } from "discord.js";
-// import { Library, Rainlink } from "rainlink";
 
 export class DiscordClient extends Client {
+	isOwner(id: string) {
+		throw new Error("Method not implemented.");
+	}
+
 	public config: Config;
 	public logger: typeof Logger;
 	public i18n = Language;
@@ -48,8 +51,8 @@ export class DiscordClient extends Client {
 		this.logger = Logger;
 		this.config = config;
 		// this.rainlink = new Rainlink({
-		// 	library: new Library.DiscordJS(this),
-		// 	nodes: this.config.lavalink.nodes
+		//   library: new Library.DiscordJS(this),
+		//   nodes: this.config.lavalink.nodes
 		// });
 		this.cluster = new ClusterClient(this);
 	}

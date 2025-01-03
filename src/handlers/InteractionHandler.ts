@@ -1,7 +1,14 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
-import type { ButtonComponent, ButtonInteraction, ChatInputCommandInteraction } from "discord.js";
+import type {
+	ButtonComponent,
+	ButtonInteraction,
+	ChatInputCommandInteraction,
+	Interaction,
+	StringSelectMenuInteraction
+} from "discord.js";
 import { CommandHandler } from "./CommandHandler";
 import { PermissionHandler } from "./PermissionHandler";
+import Update from "@/db/config/update";
 
 export class InteractionHandler {
 	static async runChatCommand(
@@ -47,14 +54,34 @@ export class InteractionHandler {
 	}
 
 	static async runButton(client: DiscordClient, interaction: ButtonInteraction): Promise<void> {
-		const { customId } = interaction.component as ButtonComponent;
-
-		console.log("Running button", customId);
+		const { customId, data } = interaction.component as ButtonComponent;
+		console.log("Running button", customId, data);
 
 		if (customId === "confirm")
 			await interaction.reply({
 				content: "Confirmed!",
 				ephemeral: true
 			});
+	}
+
+	static async runSetAppealChannel(
+		client: DiscordClient,
+		interaction: StringSelectMenuInteraction
+	): Promise<void> {
+		const value = interaction.values[0];
+		const { customId } = interaction;
+
+		console.log("Running button", value, customId);
+
+		if (customId === "channel")
+			await Update.updateConfig({
+				serverid: interaction.guildId!,
+				channelid: interaction.values[0]
+			});
+
+		await interaction.reply({
+			content: "Confirmed!",
+			ephemeral: true
+		});
 	}
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { DiscordEvent } from "@/structures/DiscordEvent";
 import { readdirSync } from "node:fs";
@@ -17,7 +18,6 @@ export class EventRegister {
 			);
 
 			for (const file of eventFiles) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 				const event: DiscordEvent = new (
 					await import(`file://${eventFolderPath}/${folder}/${file}`)
 				).default();
@@ -29,10 +29,7 @@ export class EventRegister {
 				counter.total++;
 
 				if (!event.enabled) return;
-
-				if (event.rest)
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-					client.rest.on(event.name, event.run.bind(null, client));
+				if (event.rest) client.rest.on(event.name, event.run.bind(null, client));
 				else client.on(event.name, event.run.bind(null, client));
 
 				counter.success++;

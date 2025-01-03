@@ -2,6 +2,7 @@ import { ClusterManager, HeartbeatManager, ReClusterManager } from "discord-hybr
 import axios from "axios";
 import type { ShardRequest } from "@/types/Shard";
 import { ConfigService } from "@/shared/ConfigService";
+import { Logger } from "./shared/Logger";
 
 const configData = new ConfigService();
 const { config } = configData;
@@ -70,19 +71,45 @@ async function start() {
 
 	manager.on("clusterCreate", (cluster) => {
 		clusterId = cluster.id;
-		console.log(`|-------------------------- Cluster ${cluster.id} / ${clusterTotal} lanzado en el bot --------------------------|`);
+		console.log(
+			`|-------------------------- Cluster ${cluster.id} / ${clusterTotal} lanzado en el bot --------------------------|`
+		);
 	});
 
 	manager.on("debug", (msg) => {
 		if (msg === `[CM => Cluster ${String(clusterId)}] Ready`) {
-			console.log(`|------------------------------ Cluster ${clusterId} preparado! ------------------------------|`);
+			console.log(
+				`|------------------------------ Cluster ${clusterId} preparado! ------------------------------|`
+			);
 		}
 	});
 
 	manager.spawn({ timeout: -1 }).catch((err: unknown) => {
 		console.error("Error al iniciar el clúster:", err);
 	});
+
+	manager.on("message", (message) => {
+		console.log(message);
+	});
+
+	// Connect to WebSocket server
 }
+
+process
+	.on("unhandledRejection", (error) =>
+		Logger.error("AntiCrash - UnhandledRejection", error as string)
+	)
+	.on("uncaughtException", (error) =>
+		Logger.error("AntiCrash - UncaughtException", error as unknown as string)
+	)
+	.on("uncaughtExceptionMonitor", (error) =>
+		Logger.error("AntiCrash - UncaughtExceptionMonitor", error)
+	)
+	.on("exit", () => Logger.info("Manager - Exit", "Se ha cerrado el bot correctamente"))
+	.on("SIGINT", () => {
+		Logger.info("Manager - SIGINT", "Cerrando bot...");
+		process.exit(0);
+	});
 
 try {
 	void start();

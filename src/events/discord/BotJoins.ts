@@ -1,6 +1,7 @@
 import { DiscordEvent } from "@/structures/DiscordEvent";
 import { type Client, Events, type Guild } from "discord.js";
 import { Logger } from "@/shared/Logger";
+import { Create } from "@/db/servers/create";
 
 export default class extends DiscordEvent {
 	constructor() {
@@ -17,9 +18,17 @@ export default class extends DiscordEvent {
 		console.log("Bot Joins event", guild);
 
 		try {
-			void guild.fetchOwner().then((owner) => {
-				Logger.info(`El bot ha sido añadido a: ${guild.name} por ${owner?.user.tag}`);
-				void owner.send("¡Gracias por añadirme a tu servidor! Usa `/ayuda` para ver mis comandos.");
+			const owner = await guild.fetchOwner();
+			Logger.info(
+				`El bot ha sido añadido a: ${guild.name} por ${owner?.user.tag} ${owner?.user.id}`
+			);
+			void owner.send("¡Gracias por añadirme a tu servidor! Usa `/ayuda` para ver mis comandos.");
+
+			void Create.createServer({
+				server_id: guild.id,
+				server_name: guild.name,
+				server_url: "kfkekefkwe",
+				owner_id: owner.user.id
 			});
 
 			// Opcional: Envía un mensaje al canal del sistema si está disponible
