@@ -1,7 +1,7 @@
 import { DiscordEvent } from "@/structures/DiscordEvent";
 import { type Client, Events, type Guild } from "discord.js";
 import { Logger } from "@/shared/Logger";
-import { Delete } from "@/db/servers/delete";
+import HttpClient from "@/clients/HttpClient";
 
 export default class extends DiscordEvent {
 	constructor() {
@@ -20,11 +20,16 @@ export default class extends DiscordEvent {
 		try {
 			Logger.info(`El bot ha sido removido de: ${guild.name} `);
 
-			void Delete.deleteServer({
-				server_id: guild.id
-			});
+			void HttpClient.axios
+				.post({
+					url: "/guild/delete",
+					data: {
+						server_id: guild.id
+					}
+				})
+				.then((data) => console.log(data));
 		} catch (error: unknown) {
-			Logger.error(`Error en el evento GuildCreate: ${(error as Error).message}`);
+			Logger.error(`Error en el evento GuildDelete: ${(error as Error).message}`);
 		}
 	};
 }

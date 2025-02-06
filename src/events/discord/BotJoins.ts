@@ -1,7 +1,7 @@
 import { DiscordEvent } from "@/structures/DiscordEvent";
 import { type Client, Events, type Guild } from "discord.js";
 import { Logger } from "@/shared/Logger";
-import { Create } from "@/db/servers/create";
+import HttpClient from "@/clients/HttpClient";
 
 export default class extends DiscordEvent {
 	constructor() {
@@ -12,10 +12,10 @@ export default class extends DiscordEvent {
 		});
 	}
 
-	run = async (client: Client, guild: Guild) => {
+	run = async (_: Client, guild: Guild) => {
 		if (!guild) return;
 
-		console.log("Bot Joins event", guild);
+		// console.log("Bot Joins event", guild);
 
 		try {
 			const owner = await guild.fetchOwner();
@@ -24,12 +24,17 @@ export default class extends DiscordEvent {
 			);
 			void owner.send("¡Gracias por añadirme a tu servidor! Usa `/ayuda` para ver mis comandos.");
 
-			void Create.createServer({
-				server_id: guild.id,
-				server_name: guild.name,
-				server_url: "kfkekefkwe",
-				owner_id: owner.user.id
-			});
+			void HttpClient.axios
+				.post({
+					url: "/guild/create",
+					data: {
+						server_id: guild.id,
+						server_name: guild.name,
+						server_url: "kfkekefkwe",
+						owner_id: owner.user.id
+					}
+				})
+				.then((data) => console.log(data));
 
 			// Opcional: Envía un mensaje al canal del sistema si está disponible
 			if (guild.systemChannel) {

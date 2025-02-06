@@ -3,12 +3,11 @@ import type {
 	ButtonComponent,
 	ButtonInteraction,
 	ChatInputCommandInteraction,
-	Interaction,
 	StringSelectMenuInteraction
 } from "discord.js";
 import { CommandHandler } from "./CommandHandler";
 import { PermissionHandler } from "./PermissionHandler";
-import Update from "@/db/config/update";
+import HttpClient from "@/clients/HttpClient";
 
 export class InteractionHandler {
 	static async runChatCommand(
@@ -74,10 +73,15 @@ export class InteractionHandler {
 		console.log("Running button", value, customId);
 
 		if (customId === "channel")
-			await Update.updateConfig({
-				serverid: interaction.guildId!,
-				channelid: interaction.values[0]
-			});
+			await HttpClient.axios
+				.post({
+					url: "/config/appealschannel",
+					data: {
+						server_id: interaction.guildId,
+						channel_id: value
+					}
+				})
+				.then((data) => console.log(data));
 
 		await interaction.reply({
 			content: "Confirmed!",
