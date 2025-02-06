@@ -22,6 +22,7 @@ export default class extends Command {
 	}
 
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
+		console.log("ran ping command");
 		const createdTimestamp = (handler.message?.createdTimestamp ||
 			handler.interaction?.createdTimestamp)!;
 

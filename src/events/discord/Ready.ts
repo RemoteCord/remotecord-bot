@@ -14,7 +14,8 @@ export default class extends DiscordEvent {
 	}
 
 	run = async (client: DiscordClient) => {
-		console.log("Bot is ready", client.cluster.id);
+		// console.log("Bot is ready", client.cluster.id);
+		console.log("Bot is ready");
 
 		// if (clusterWorker.isPrimary) {
 		// 	new ClusterService(client);

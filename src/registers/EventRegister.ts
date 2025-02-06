@@ -26,6 +26,8 @@ export class EventRegister {
 					break;
 				}
 
+				client.logger.info(`Loaded event: ${event.name}`);
+
 				counter.total++;
 
 				if (!event.enabled) return;

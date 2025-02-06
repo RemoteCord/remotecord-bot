@@ -3,7 +3,7 @@ import { EventRegister } from "@/registers/EventRegister";
 import { Logger } from "@/shared/Logger";
 import type { Command } from "@/structures/Command";
 import type { Config } from "@/types/Config";
-import { ClusterClient, getInfo } from "discord-hybrid-sharding";
+// import { ClusterClient, getInfo } from "discord-hybrid-sharding";
 import { AllowedMentionsTypes, Client, Collection, GatewayIntentBits, Partials } from "discord.js";
 
 export class DiscordClient extends Client {
@@ -13,18 +13,20 @@ export class DiscordClient extends Client {
 
 	public config: Config;
 	public logger: typeof Logger;
-	public cluster: ClusterClient<DiscordClient>;
+	// public cluster: ClusterClient<DiscordClient>;
 
 	public commands = new Collection<string, Command>();
-	public selectMenus = new Collection<string, Command>();
-	public buttons = new Collection<string, Command>();
-	public contextMenus = new Collection<string, Command>();
-	public modals = new Collection<string, Command>();
+
+	// Unused from orignal code. idk what these are for lol
+	// public selectMenus = new Collection<string, Command>();
+	// public buttons = new Collection<string, Command>();
+	// public contextMenus = new Collection<string, Command>();
+	// public modals = new Collection<string, Command>();
 
 	constructor(config: Config) {
 		super({
-			shards: getInfo().SHARD_LIST,
-			shardCount: getInfo().TOTAL_SHARDS,
+			// shards: getInfo().SHARD_LIST,
+			// shardCount: getInfo().TOTAL_SHARDS,
 			allowedMentions: {
 				parse: [
 					AllowedMentionsTypes.Everyone,
@@ -50,7 +52,7 @@ export class DiscordClient extends Client {
 		this.config = config;
 
 		// console.log("DiscordClient constructor");
-		this.cluster = new ClusterClient(this);
+		// this.cluster = new ClusterClient(this);
 
 		// console.log("DiscordClient constructor");
 	}
