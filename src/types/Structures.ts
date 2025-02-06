@@ -5,18 +5,12 @@ import type {
 	SlashCommandBuilder,
 	SlashCommandOptionsOnlyBuilder
 } from "discord.js";
-import type { RainlinkEventsInterface } from "rainlink";
 import type { CustomPermissions } from "./Permissions";
 
 export interface DiscordEventProps {
 	name: string;
 	enabled: boolean;
 	rest: boolean;
-}
-
-export interface RainlinkEventProps {
-	name: keyof RainlinkEventsInterface;
-	enabled: boolean;
 }
 
 export interface CommandClass {

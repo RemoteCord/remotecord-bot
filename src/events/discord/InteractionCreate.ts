@@ -29,21 +29,7 @@ export default class extends DiscordEvent {
 		}
 
 		if (interaction.isChatInputCommand()) {
-			if (
-				interaction.commandName === "config" &&
-				interaction.guild?.ownerId === interaction.user.id
-			) {
-				await InteractionHandler.runChatCommand(client, interaction);
-			} else {
-				await interaction.reply({
-					content: "You don't have permission to use this command!",
-					ephemeral: true
-				});
-			}
-		}
-
-		if (interaction.isStringSelectMenu()) {
-			await InteractionHandler.runSetAppealChannel(client, interaction);
+			await InteractionHandler.runChatCommand(client, interaction);
 		}
 	};
 }

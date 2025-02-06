@@ -37,10 +37,14 @@ async function getRecommendedShards() {
 
 async function start() {
 	const token = config?.bot.TOKEN;
+	// console.log("Token:", token);
 	let clusterId: number;
 	const recommendedShards = await getRecommendedShards();
+	// console.log("Recomendación de shards:", recommendedShards);
 
 	const clusterTotal = Math.round(recommendedShards.totalShards / 16);
+
+	// console.log("Recomendación de shards:", recommendedShards);
 
 	// Crear una instancia de ClusterManager
 	const manager = new ClusterManager(botPath, {
@@ -55,6 +59,8 @@ async function start() {
 			interval: 60000 * 60
 		}
 	});
+
+	// console.log("aaaaaaaaaaaaaaaaaaaa");
 
 	manager.extend(
 		new HeartbeatManager({

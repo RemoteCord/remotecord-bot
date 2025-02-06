@@ -21,7 +21,7 @@ export default class extends DiscordEvent {
 
 		if (!message.content.startsWith(prefix) && !message.content.match(mentionRegex)) return;
 
-		const [cmd, ...args] = message.content.slice(prefix.length).trim().split(/ +/g);
+		const [cmd] = message.content.slice(prefix.length).trim().split(/ +/g);
 		const command = client.commands.get(cmd);
 
 		if (!command) return;
@@ -31,7 +31,6 @@ export default class extends DiscordEvent {
 				client,
 				message,
 				color: client.config.colors.burple,
-				language: client.config.bot.LANGUAGE,
 				prefix: client.config.bot.PREFIX
 			});
 

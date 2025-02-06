@@ -29,7 +29,6 @@ interface CommandHandlerProps {
 	interaction?: CommandInteraction;
 	message?: Message;
 	color: ColorResolvable;
-	language: string;
 	prefix: string;
 }
 
@@ -42,15 +41,13 @@ export class CommandHandler {
 	public channel?: TextBasedChannel | null;
 	public guild?: Guild | null;
 	public color: ColorResolvable;
-	public language: string;
 	public prefix: string;
 
-	constructor({ client, interaction, message, color, language, prefix }: CommandHandlerProps) {
+	constructor({ client, interaction, message, color, prefix }: CommandHandlerProps) {
 		this.client = client;
 		this.interaction = interaction;
 		this.message = message;
 		this.color = color;
-		this.language = language;
 		this.prefix = prefix;
 
 		this.user = interaction ? interaction.user : message!.author;
@@ -87,7 +84,9 @@ export class CommandHandler {
 		this.client.logger.error("Edit reply is not supported.");
 	}
 
-	public async reply(options: InteractionReplyOptions | MessageReplyOptions): Promise<Message | InteractionResponse<BooleanCache<CacheType>>> {
+	public async reply(
+		options: InteractionReplyOptions | MessageReplyOptions
+	): Promise<Message | InteractionResponse<BooleanCache<CacheType>>> {
 		if (this.interaction instanceof InteractionResponse) {
 			return this.interaction.edit(options);
 		}
@@ -99,7 +98,9 @@ export class CommandHandler {
 		return this.message!.reply(options as MessageReplyOptions);
 	}
 
-	public ghostReply(content: InteractionReplyOptions): Promise<InteractionResponse<BooleanCache<CacheType>> | Message> | undefined {
+	public ghostReply(
+		content: InteractionReplyOptions
+	): Promise<InteractionResponse<BooleanCache<CacheType>> | Message> | undefined {
 		if (this.interaction instanceof InteractionResponse) {
 			return this.interaction.edit(content);
 		}
@@ -142,7 +143,9 @@ export class CommandHandler {
 		return Array.from(this.message!.mentions.members?.values() || []);
 	}
 
-	public getChannelMentions(): Array<GuildBasedChannel | APIInteractionDataResolvedChannel | Channel> {
+	public getChannelMentions(): Array<
+		GuildBasedChannel | APIInteractionDataResolvedChannel | Channel
+	> {
 		if (this.interaction instanceof CommandInteraction) {
 			return this.interaction.options.data.map((option) => option.channel!) || [];
 		}

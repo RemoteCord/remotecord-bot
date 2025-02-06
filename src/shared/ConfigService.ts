@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import { Logger } from "./Logger";
 import { config } from "dotenv";
 import type { Config, EnvConfig, YamlConfig, ConfigColors } from "@/types/Config";
-import nodesFile from "../../nodes.json";
 
 config();
 
@@ -35,12 +34,20 @@ export class ConfigService {
 			valid = false;
 		}
 
+		console.log("aaaaaaaaaaa");
+
 		for (const key of defaultConfigKeys) {
 			// @ts-expect-error key is a valid key
-			const config = this.config![key];
+			if (!this.config![key]) {
+				this.logger.error(`Missing config for key [${key}]`);
+				valid = false;
+				continue;
+			}
+
 			// @ts-expect-error key is a valid key
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			const keys = Object.keys(this.config![key]);
+
 			// @ts-expect-error key is a valid key
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			const defaultKeys = Object.keys(this.getDefaultConfig()[key]);
@@ -62,6 +69,8 @@ export class ConfigService {
 				}
 			}
 		}
+
+		console.log("aaaaaaaaaaa");
 
 		return valid;
 	}
@@ -97,9 +106,7 @@ export class ConfigService {
 				PREFIX: envConfig.PREFIX ?? defaultConfig.bot.PREFIX,
 				...(config?.bot ?? defaultConfig.bot)
 			},
-			lavalink: {
-				nodes: nodesFile.nodes ?? defaultConfig.lavalink
-			},
+
 			emojis: config?.emojis ?? defaultConfig.emojis,
 			colors: config?.colors ?? (defaultConfig.colors as ConfigColors)
 		};
@@ -113,12 +120,10 @@ export class ConfigService {
 				PREFIX: "!",
 				EMBED_COLOR: "#5865f2",
 				ADMIN: [],
-				LANGUAGE: "en",
+
 				BETA_MODE: false
 			},
-			lavalink: {
-				nodes: []
-			},
+
 			emojis: {
 				success: "✅",
 				error: "❌"

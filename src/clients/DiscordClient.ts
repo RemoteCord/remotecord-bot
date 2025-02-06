@@ -1,4 +1,3 @@
-import { Language } from "@/i18n/Language";
 import { CommandRegister } from "@/registers/CommandRegister";
 import { EventRegister } from "@/registers/EventRegister";
 import { Logger } from "@/shared/Logger";
@@ -14,10 +13,7 @@ export class DiscordClient extends Client {
 
 	public config: Config;
 	public logger: typeof Logger;
-	public i18n = Language;
 	public cluster: ClusterClient<DiscordClient>;
-
-	// public rainlink: Rainlink;
 
 	public commands = new Collection<string, Command>();
 	public selectMenus = new Collection<string, Command>();
@@ -52,11 +48,11 @@ export class DiscordClient extends Client {
 
 		this.logger = Logger;
 		this.config = config;
-		// this.rainlink = new Rainlink({
-		//   library: new Library.DiscordJS(this),
-		//   nodes: this.config.lavalink.nodes
-		// });
+
+		// console.log("DiscordClient constructor");
 		this.cluster = new ClusterClient(this);
+
+		// console.log("DiscordClient constructor");
 	}
 
 	async start(): Promise<void> {
