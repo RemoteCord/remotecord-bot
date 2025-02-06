@@ -28,13 +28,13 @@ export class CommandRegister {
 		}
 	}
 
-	static registerMenus(client: DiscordClient) {}
+	// static registerMenus(client: DiscordClient) {}
 
-	static registerButtons(client: DiscordClient) {}
+	// static registerButtons(client: DiscordClient) {}
 
-	static registerSelectMenus(client: DiscordClient) {}
+	// static registerSelectMenus(client: DiscordClient) {}
 
-	static registerContextMenus(client: DiscordClient) {}
+	// static registerContextMenus(client: DiscordClient) {}
 
 	static async registerSlashApi(client: DiscordClient) {
 		const slashCommands = client.commands
