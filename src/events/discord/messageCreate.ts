@@ -2,6 +2,7 @@ import type { DiscordClient } from "@/clients/DiscordClient";
 import { CommandHandler } from "@/handlers/CommandHandler";
 import { DiscordEvent } from "@/structures/DiscordEvent";
 import { ChannelType, Events, type Message } from "discord.js";
+import { type Socket } from "socket.io-client";
 
 export default class extends DiscordEvent {
 	constructor() {
@@ -12,7 +13,7 @@ export default class extends DiscordEvent {
 		});
 	}
 
-	run = async (client: DiscordClient, message: Message) => {
+	run = async (client: DiscordClient, ws: Socket, message: Message) => {
 		if (message.author.bot) return;
 		if (message.channel.type === ChannelType.DM) return;
 
@@ -34,7 +35,7 @@ export default class extends DiscordEvent {
 				prefix: client.config.bot.PREFIX
 			});
 
-			await command.run(client, handler);
+			await command.run(client, handler, ws);
 		} catch (error) {
 			console.error(error);
 			await message.reply({ content: "There was an error while executing this command!" });

@@ -40,11 +40,13 @@
 		"typescript": "^5.5.3"
 	},
 	"dependencies": {
+		"@types/multer": "^1.4.12",
 		"axios": "^1.7.3",
 		"chalk": "^5.3.0",
 		"discord-hybrid-sharding": "^2.2.0",
 		"discord.js": "^14.15.3",
 		"dotenv": "^16.4.5",
-		"js-yaml": "^4.1.0"
+		"js-yaml": "^4.1.0",
+		"socket.io-client": "^4.8.1"
 	}
 }

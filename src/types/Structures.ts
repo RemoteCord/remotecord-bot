@@ -6,6 +6,7 @@ import type {
 	SlashCommandOptionsOnlyBuilder
 } from "discord.js";
 import type { CustomPermissions } from "./Permissions";
+import { type Socket } from "socket.io-client";
 
 export interface DiscordEventProps {
 	name: string;
@@ -14,7 +15,7 @@ export interface DiscordEventProps {
 }
 
 export interface CommandClass {
-	run({ client, msg, ...args }: RunArgs): void;
+	run({ client, msg, ws, ...args }: RunArgs): void;
 }
 
 export interface CommandProps {
@@ -34,6 +35,7 @@ export interface CommandProps {
 export interface RunArgs {
 	client: DiscordClient;
 	msg: Message;
+	ws: Socket;
 	args: any[];
 }
 

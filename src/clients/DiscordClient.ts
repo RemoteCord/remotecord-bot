@@ -1,5 +1,6 @@
 import { CommandRegister } from "@/registers/CommandRegister";
 import { EventRegister } from "@/registers/EventRegister";
+import { WsService } from "@/services";
 import { Logger } from "@/shared/Logger";
 import type { Command } from "@/structures/Command";
 import type { Config } from "@/types/Config";
@@ -58,8 +59,9 @@ export class DiscordClient extends Client {
 	}
 
 	async start(): Promise<void> {
+		const ws = await WsService.startWsServer(this);
 		await CommandRegister.registerCommands(this);
-		await EventRegister.discordEventRegister(this);
+		await EventRegister.discordEventRegister(this, ws);
 		await CommandRegister.registerSlashApi(this);
 		await this.login(this.config.bot.TOKEN).catch((error: unknown) => this.logger.error(error));
 	}

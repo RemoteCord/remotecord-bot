@@ -2,9 +2,11 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { DiscordEvent } from "@/structures/DiscordEvent";
 import { readdirSync } from "node:fs";
+import { type Socket } from "socket.io-client";
 
 export class EventRegister {
-	static async discordEventRegister(client: DiscordClient) {
+	static async discordEventRegister(client: DiscordClient, ws: Socket) {
+		console.log(ws);
 		const counter = {
 			total: 0,
 			success: 0
@@ -31,8 +33,8 @@ export class EventRegister {
 				counter.total++;
 
 				if (!event.enabled) return;
-				if (event.rest) client.rest.on(event.name, event.run.bind(null, client));
-				else client.on(event.name, event.run.bind(null, client));
+				if (event.rest) client.rest.on(event.name, event.run.bind(null, client, ws));
+				else client.on(event.name, event.run.bind(null, client, ws));
 
 				counter.success++;
 			}

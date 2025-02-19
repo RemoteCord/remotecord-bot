@@ -7,7 +7,7 @@ interface FetchOptions {
 	body?: string | FormData | URLSearchParams | any;
 }
 
-const { API_SECRET, API_URL } = process.env;
+const { API_TOKEN, API_URL } = process.env;
 
 class FetchClient {
 	private async customFetch<ResponseJSON>(config: FetchOptions): Promise<ResponseJSON> {
@@ -69,7 +69,7 @@ class AxiosClient {
 		const headers = {
 			...config.headers,
 			"Content-Type": "application/json",
-			secret: API_SECRET
+			Authorization: API_TOKEN
 		};
 
 		const { url } = config;

@@ -70,7 +70,7 @@ export class PermissionHandler {
 		const channel = this.interaction.channel as GuildChannel;
 		// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 		const bot = this.interaction.guild?.members.me!;
-		const memberChannel = (this.interaction.member as GuildMember).voice.channel;
+		const memberChannel = (this.interaction.member as GuildMember)?.voice.channel;
 
 		if (!botPermissions.length) return null;
 

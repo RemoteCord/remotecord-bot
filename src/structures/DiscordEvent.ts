@@ -1,5 +1,6 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { EventProps } from "@/types/Structures";
+import { type Socket } from "socket.io-client";
 
 export class DiscordEvent {
 	name: string;
@@ -13,5 +14,5 @@ export class DiscordEvent {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	run = (client: DiscordClient, ...args: any[]): any => {};
+	run = (client: DiscordClient, ws: Socket, ...args: any[]): any => {};
 }

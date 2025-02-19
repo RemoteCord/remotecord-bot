@@ -1,8 +1,9 @@
 import { DiscordClient } from "./clients/DiscordClient";
 import { ConfigService } from "@/shared/ConfigService";
-import { Config } from "./types/Config";
+import { type Config } from "./types/Config";
 
 const configData = new ConfigService();
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const config: Config = configData.config ?? ({} as Config);
 
 // const botPath = `${process.cwd()}/src/bot.ts`;
@@ -11,4 +12,4 @@ const config: Config = configData.config ?? ({} as Config);
 const client = new DiscordClient(config);
 
 // Start the client
-client.start().catch((error) => console.error(error));
+client.start().catch((error: unknown) => console.error(error));

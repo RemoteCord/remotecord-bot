@@ -2,6 +2,7 @@ import type { DiscordClient } from "@/clients/DiscordClient";
 import { DiscordEvent } from "@/structures/DiscordEvent";
 import { Events, type Interaction } from "discord.js";
 import { InteractionHandler } from "@/handlers/InteractionHandler";
+import { type Socket } from "socket.io-client";
 // import { Logger } from "@/shared/Logger";
 // import { PermissionHandler } from "@/handlers/PermissionHandler";
 
@@ -14,14 +15,14 @@ export default class extends DiscordEvent {
 		});
 	}
 
-	run = async (client: DiscordClient, interaction: Interaction) => {
+	run = async (client: DiscordClient, ws: Socket, interaction: Interaction) => {
 		console.log(
 			`Running InteractionCreate event: Interaction type: ${interaction.type}`,
 			`Is command: ${interaction.isCommand()}`,
 			`Is button: ${interaction.isButton()}`,
 			`Is chat input command: ${interaction.isChatInputCommand()}`,
 			`Is string select menu: ${interaction.isStringSelectMenu()}`
-			// interaction
+			// ws
 		);
 
 		if (interaction.isButton()) {
@@ -29,7 +30,7 @@ export default class extends DiscordEvent {
 		}
 
 		if (interaction.isChatInputCommand()) {
-			await InteractionHandler.runChatCommand(client, interaction);
+			await InteractionHandler.runChatCommand(client, interaction, ws);
 		}
 	};
 }
