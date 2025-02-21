@@ -2,21 +2,15 @@ import type { DiscordClient } from "@/clients/DiscordClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
 import { Command } from "@/structures/Command";
 import { CustomPermissions } from "@/types/Permissions";
-import {
-	ActionRowBuilder,
-	Interaction,
-	SlashCommandBuilder,
-	StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder
-} from "discord.js";
+import { type AutocompleteInteraction, SlashCommandBuilder } from "discord.js";
 
 export default class extends Command {
 	constructor() {
 		super({
-			name: "upload",
-			description: "Upload file to a client!",
+			name: "get",
+			description: "get file from a client!",
 			category: "commands",
-			aliases: ["Upload"],
+			aliases: ["Get"],
 			interaction: true,
 			userPermissions: [],
 			botPermissions: [],
@@ -24,17 +18,33 @@ export default class extends Command {
 			premium: false,
 			enabled: true,
 			slash: new SlashCommandBuilder()
-				.setName("upload")
-				.setDescription("Upload file to a client!")
-				.addAttachmentOption((option) =>
-					option.setName("file").setDescription("The file to upload").setRequired(true)
+				.setName("get")
+				.setDescription("get file from a client!")
+				.addStringOption((option) =>
+					option.setName("route").setDescription("the route of the file").setRequired(true)
+				)
+				.addStringOption((option) =>
+					option
+						.setName("folder")
+						.setDescription("The folder of the file")
+						.setRequired(true)
+						.setAutocomplete(true)
 				)
 		});
 	}
 
+	async autocomplete(interaction: AutocompleteInteraction) {
+		console.log("Running autocomplete", interaction.options.getFocused());
+		const focusedValue = interaction.options.getFocused();
+		const choices = ["Desktop", "Documents", "Downloads"];
+		const filtered = choices.filter((choice) => choice.startsWith(focusedValue));
+		await interaction.respond(filtered.map((choice) => ({ name: choice, value: choice })));
+	}
+
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
 		await handler.reply({
-			content: `File send to client!`,
+			content: `File get!`,
+
 			ephemeral: true
 		});
 	}

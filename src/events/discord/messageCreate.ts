@@ -25,6 +25,8 @@ export default class extends DiscordEvent {
 		const [cmd] = message.content.slice(prefix.length).trim().split(/ +/g);
 		const command = client.commands.get(cmd);
 
+		console.log("Running chat command", cmd, prefix, message.content);
+
 		if (!command) return;
 
 		try {

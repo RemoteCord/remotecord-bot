@@ -3,6 +3,7 @@ import type { CommandHandler } from "@/handlers/CommandHandler";
 import type { CustomPermissions } from "@/types/Permissions";
 import type { CommandProps } from "@/types/Structures";
 import type {
+	AutocompleteInteraction,
 	PermissionResolvable,
 	SlashCommandBuilder,
 	SlashCommandOptionsOnlyBuilder
@@ -46,6 +47,8 @@ export class Command {
 		this.enabled = enabled || true;
 		this.slash = slash || undefined;
 	}
+
+	async autocomplete(interaction: AutocompleteInteraction) {}
 
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<any> {
 		throw new Error("Method not implemented.");

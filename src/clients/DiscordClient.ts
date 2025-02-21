@@ -13,6 +13,9 @@ export class DiscordClient extends Client {
 	}
 
 	public config: Config;
+	public folderPath: Map<string, string>;
+
+	public relativeFolder: Map<string, string>;
 	public logger: typeof Logger;
 	// public cluster: ClusterClient<DiscordClient>;
 
@@ -51,7 +54,9 @@ export class DiscordClient extends Client {
 
 		this.logger = Logger;
 		this.config = config;
+		this.folderPath = new Map<string, string>();
 
+		this.relativeFolder = new Map<string, string>();
 		// console.log("DiscordClient constructor");
 		// this.cluster = new ClusterClient(this);
 

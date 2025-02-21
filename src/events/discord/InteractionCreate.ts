@@ -25,12 +25,20 @@ export default class extends DiscordEvent {
 			// ws
 		);
 
+		if (interaction.isAutocomplete()) {
+			await InteractionHandler.runAutocomplete(client, interaction);
+		}
+
 		if (interaction.isButton()) {
 			await InteractionHandler.runButton(client, interaction);
 		}
 
 		if (interaction.isChatInputCommand()) {
 			await InteractionHandler.runChatCommand(client, interaction, ws);
+		}
+
+		if (interaction.isStringSelectMenu()) {
+			await InteractionHandler.runStringSelectMenu(client, interaction);
 		}
 	};
 }
