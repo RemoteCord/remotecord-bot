@@ -51,10 +51,9 @@ export class InteractionHandler {
 			const controllerid = interaction.user.id;
 
 			void HttpClient.axios.post({
-				url: "/bot/files/send",
+				url: `/controllers/${controllerid}/files`,
 				data: {
-					fileurl: file?.url,
-					controllerid
+					fileurl: file?.url
 				}
 			});
 		}
