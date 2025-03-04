@@ -58,21 +58,8 @@ export class InteractionHandler {
 			});
 		}
 
-		if (interaction.commandName === "select") {
-			const clientid = interaction.options.getString("clientid");
-			const controllerid = interaction.user.id;
-
-			void HttpClient.axios
-				.post({
-					url: "/bot/select-client",
-					data: {
-						clientid,
-						controllerid
-					}
-				})
-				.then((res) => {
-					console.log("Select client response", res);
-				});
+		if (interaction.commandName === "connect") {
+			// await command.run(client, handler);
 		}
 
 		if (interaction.commandName === "get") {
@@ -81,9 +68,9 @@ export class InteractionHandler {
 			const folder = interaction.options.getString("folder") ?? "";
 			Logger.info("Running get command", interaction.commandName, route, folder, controllerid);
 			void HttpClient.axios.post({
-				url: "/bot/files/get",
+				url: `/controllers/${controllerid}/file`,
 				data: {
-					route: path.join(folder, route),
+					fileroute: path.join(folder, route),
 					controllerid
 				}
 			});
@@ -92,12 +79,9 @@ export class InteractionHandler {
 		if (interaction.commandName === "tasks") {
 			const controllerid = interaction.user.id;
 			Logger.info("Running tasks command", controllerid);
-			void HttpClient.axios
+			const clientTasks = void HttpClient.axios
 				.get({
-					url: "/bot/client/tasks",
-					params: {
-						controllerid
-					}
+					url: `/controllers/${controllerid}/tasks`
 				})
 				.then((res) => Logger.info("Tasks response", res));
 		}
@@ -144,7 +128,7 @@ export class InteractionHandler {
 			} catch (error) {
 				console.error(error);
 				await interaction.reply({
-					content: "There was an error while executing this command!!!",
+					content: "An error occurred while executing this command!!!",
 					ephemeral: true
 				});
 			}
@@ -212,6 +196,27 @@ export class InteractionHandler {
 				content: `Downloading...`,
 				ephemeral: true
 			});
+		}
+
+		if (interaction.customId === "client-select-menu") {
+			Logger.info("Running client select menu", interaction.values[0]);
+			const clientSelection = interaction.values[0]; // Client ID
+			const controllerid = interaction.user.id;
+
+			void HttpClient.axios
+				.post<{ status: string }>({
+					url: "/bot/select-client",
+					data: {
+						clientid: clientSelection,
+						controllerid
+					}
+				})
+				.then((res) => {
+					// console.log("Select client response", res);
+					interaction.reply({
+						content: "Successfully selected client"
+					});
+				});
 		}
 	}
 
