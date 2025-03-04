@@ -23,7 +23,7 @@ interface DirEntry {
 
 export default class WsService {
 	static async startWsServer(client: DiscordClient) {
-		const manager = new Manager("wss://preview.luqueee.dev", {
+		const manager = new Manager("wss://api.luqueee.dev", {
 			autoConnect: true
 		});
 

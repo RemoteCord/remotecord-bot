@@ -59,6 +59,23 @@ export class InteractionHandler {
 			});
 		}
 
+		if (interaction.commandName === "select") {
+			const clientid = interaction.options.getString("clientid");
+			const controllerid = interaction.user.id;
+
+			void HttpClient.axios
+				.post({
+					url: "/bot/select-client",
+					data: {
+						clientid,
+						controllerid
+					}
+				})
+				.then((res) => {
+					console.log("Select client response", res);
+				});
+		}
+
 		if (interaction.commandName === "get") {
 			const controllerid = interaction.user.id;
 			const route = interaction.options.getString("route") ?? "";
