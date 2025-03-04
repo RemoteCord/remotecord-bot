@@ -79,7 +79,7 @@ export class InteractionHandler {
 		if (interaction.commandName === "tasks") {
 			const controllerid = interaction.user.id;
 			Logger.info("Running tasks command", controllerid);
-			const clientTasks = void HttpClient.axios
+			void HttpClient.axios
 				.get({
 					url: `/controllers/${controllerid}/tasks`
 				})
@@ -213,7 +213,7 @@ export class InteractionHandler {
 				})
 				.then((res) => {
 					// console.log("Select client response", res);
-					interaction.reply({
+					void interaction.reply({
 						content: "Successfully selected client"
 					});
 				});
