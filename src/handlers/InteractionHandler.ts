@@ -60,16 +60,30 @@ export class InteractionHandler {
 		}
 
 		if (interaction.commandName === "get") {
-			Logger.info("Running get command", interaction.commandName);
 			const controllerid = interaction.user.id;
-			const route = interaction.options.getString("route");
+			const route = interaction.options.getString("route") ?? "";
+			const folder = interaction.options.getString("folder") ?? "";
+			Logger.info("Running get command", interaction.commandName, route, folder, controllerid);
 			void HttpClient.axios.post({
 				url: "/bot/files/get",
 				data: {
-					fileroute: route,
+					route: path.join(folder, route),
 					controllerid
 				}
 			});
+		}
+
+		if (interaction.commandName === "tasks") {
+			const controllerid = interaction.user.id;
+			Logger.info("Running tasks command", controllerid);
+			void HttpClient.axios
+				.get({
+					url: "/bot/client/tasks",
+					params: {
+						controllerid
+					}
+				})
+				.then((res) => Logger.info("Tasks response", res));
 		}
 
 		if (interaction.commandName === "explorer") {
@@ -79,26 +93,45 @@ export class InteractionHandler {
 			if (!folder) return;
 
 			Logger.info("Running explorer", interaction.commandName, folder, controllerid);
-			void HttpClient.axios.get({
-				url: "/bot/files/folder",
-				params: {
-					folder,
-					controllerid
-				}
-			});
+			const res = await HttpClient.axios
+				.get<{
+					error: string;
+					message: string;
+				}>({
+					url: "/bot/files/folder",
+					params: {
+						folder,
+						controllerid
+					}
+				})
+				.then((res) => {
+					console.log("Explorer response", res);
+					return res;
+				});
 
-			await command.run(client, handler, ws);
-			return;
-		}
+			if (!res.error) {
+				await command.run(client, handler, ws);
+				await interaction.reply({
+					content: "explorer",
+					ephemeral: true
+				});
+				return;
+			}
 
-		try {
-			await command.run(client, handler);
-		} catch (error) {
-			console.error(error);
 			await interaction.reply({
-				content: "There was an error while executing this command!",
+				content: res.error,
 				ephemeral: true
 			});
+		} else {
+			try {
+				await command.run(client, handler);
+			} catch (error) {
+				console.error(error);
+				await interaction.reply({
+					content: "There was an error while executing this command!!!",
+					ephemeral: true
+				});
+			}
 		}
 	}
 
@@ -107,39 +140,63 @@ export class InteractionHandler {
 		interaction: StringSelectMenuInteraction
 	): Promise<void> {
 		const controllerid = interaction.user.id;
-		const movment = interaction.values[0];
+		if (interaction.customId === "explorer-menu") {
+			const movment = interaction.values[0];
 
-		// const relativeRoute = client.folderPath.split("")
+			// const relativeRoute = client.folderPath.split("")
 
-		if (movment === "back") {
-			const currentPath = client.relativeFolder.get(controllerid) ?? "/";
-			client.relativeFolder.set(controllerid, path.dirname(currentPath));
-		} else {
-			const currentPath = client.relativeFolder.get(controllerid) ?? "/";
-			client.relativeFolder.set(controllerid, path.join(currentPath, movment));
+			if (movment === "back") {
+				const currentPath = client.relativeFolder.get(controllerid) ?? "/";
+				client.relativeFolder.set(controllerid, path.dirname(currentPath));
+			} else {
+				const currentPath = client.relativeFolder.get(controllerid) ?? "/";
+				client.relativeFolder.set(controllerid, path.join(currentPath, movment));
+			}
+
+			Logger.info(
+				"Running string select menu",
+				movment,
+				controllerid,
+				client.folderPath,
+				client.relativeFolder,
+				interaction.customId
+			);
+
+			await HttpClient.axios.get({
+				url: "/bot/files/folder",
+				params: {
+					folder: client.folderPath.get(controllerid) ?? "/",
+					controllerid,
+					relativepath: client.relativeFolder.get(controllerid) ?? "/"
+				}
+			});
+
+			await interaction.reply({
+				content: `You selected: ${movment}`,
+				ephemeral: true
+			});
 		}
 
-		Logger.info(
-			"Running string select menu",
-			movment,
-			// controllerid,
-			client.folderPath,
-			client.relativeFolder
-		);
+		if (interaction.customId === "explorer-files-download") {
+			const currentPath = client.relativeFolder.get(controllerid) ?? "/";
+			const folder = client.folderPath.get(controllerid) ?? "/";
+			const file = interaction.values[0];
 
-		await HttpClient.axios.get({
-			url: "/bot/files/folder",
-			params: {
-				folder: client.folderPath.get(controllerid) ?? "/",
-				controllerid,
-				relativepath: client.relativeFolder.get(controllerid) ?? "/"
-			}
-		});
+			const fullpath = path.join(folder, path.join(currentPath, file));
 
-		await interaction.reply({
-			content: `You selected: ${movment}`,
-			ephemeral: true
-		});
+			Logger.info("Running download file explorer", file, controllerid, currentPath, fullpath);
+			void HttpClient.axios.post({
+				url: "/bot/files/get",
+				data: {
+					route: fullpath,
+					controllerid
+				}
+			});
+			await interaction.reply({
+				content: `Downloading...`,
+				ephemeral: true
+			});
+		}
 	}
 
 	static async runButton(client: DiscordClient, interaction: ButtonInteraction): Promise<void> {

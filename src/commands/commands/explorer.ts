@@ -56,6 +56,7 @@ export default class extends Command {
 		...args: any[]
 	): Promise<void> {
 		// console.log("Running chat command", JSON.stringify(ws));
+		ws.removeAllListeners("getFilesFolder");
 
 		ws.on("getFilesFolder", async (data: GetFilesFolder) => {
 			try {
@@ -68,19 +69,24 @@ export default class extends Command {
 
 				client.folderPath.set(controllerid, folder);
 
-				console.log("folder", folder, relativepath);
+				console.log("folder", folder, relativepath, JSON.stringify(files));
 
 				// client.relativeFolder = path.join(client.relativeFolder, relativepath);
 
 				const owner = await client.users.fetch(controllerid);
 				if (owner) {
 					const foldersList = files.filter((file) => file.isDirectory).map((file) => file.name);
-
-					const folders = foldersList.join("\n");
-					const filesFilter = files
+					const filesList = files
 						.filter((file) => file.isFile)
-						.map((file) => file.name)
-						.join("\n");
+						.filter((file) => file.size / (1024 * 1024) <= 10)
+						.sort((a, b) => {
+							const fileA = files.find((f) => f.name === a.name);
+							const fileB = files.find((f) => f.name === b.name);
+							return (fileA?.size || 0) - (fileB?.size || 0);
+						})
+						.slice(0, 50)
+						.map((file) => `${file.name} - ${(file.size / (1024 * 1024)).toFixed(2)} MB`);
+					const folders = foldersList.join("\n");
 
 					const embedFolders = {
 						title: "Folders",
@@ -90,7 +96,7 @@ export default class extends Command {
 
 					const embedFiles = {
 						title: "Files",
-						description: filesFilter,
+						description: filesList.join("\n") + (filesList.length > 50 ? "\n..." : ""),
 						color: 0x00ff00
 					};
 
@@ -100,7 +106,9 @@ export default class extends Command {
 					});
 					Logger.info(`File structure sent to: ${controllerid}`);
 
-					const select = new StringSelectMenuBuilder()
+					const components = [];
+
+					const selectFolders = new StringSelectMenuBuilder()
 						.setCustomId("explorer-menu")
 						.setPlaceholder("Move route!")
 						.addOptions([
@@ -109,18 +117,38 @@ export default class extends Command {
 								new StringSelectMenuOptionBuilder().setLabel(folder).setValue(folder)
 							)
 						]);
+					const rowFolder = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+						selectFolders
+					);
 
-					const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+					components.push(rowFolder);
+
+					if (filesList.length > 0) {
+						const selectFiles = new StringSelectMenuBuilder()
+							.setCustomId("explorer-files-download")
+							.setPlaceholder("Download a file!")
+							.addOptions([
+								...filesList
+									.slice(0, 25)
+									.map((file) => file.split(" - ")[0])
+									.map((file) => new StringSelectMenuOptionBuilder().setLabel(file).setValue(file))
+							]);
+						const rowFiles = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+							selectFiles
+						);
+						components.push(rowFiles);
+					}
+
 					// client.emit("messageCreate", );
 
 					await owner.send({
-						components: [row]
+						components
 					});
 				} else {
 					Logger.warn(`Owner not found: ${controllerid}`);
 				}
 			} catch (error) {
-				Logger.error("error");
+				Logger.error("error", error);
 			}
 		});
 	}

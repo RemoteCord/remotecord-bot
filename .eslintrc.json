@@ -17,7 +17,13 @@
 			}
 		}
 	},
-	"extends": ["xo", "prettier", "plugin:promise/recommended", "plugin:import/recommended", "plugin:import/typescript"],
+	"extends": [
+		"xo",
+		"prettier",
+		"plugin:promise/recommended",
+		"plugin:import/recommended",
+		"plugin:import/typescript"
+	],
 	"plugins": ["promise", "import", "@typescript-eslint"],
 	"overrides": [
 		{
