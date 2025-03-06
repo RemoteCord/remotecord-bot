@@ -6,21 +6,6 @@ import { AttachmentBuilder } from "discord.js";
 import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
 
-export interface Folders {
-	files: DirEntry[];
-}
-
-interface DirEntry {
-	/** The name of the entry (file name with extension or directory name). */
-	name: string;
-	/** Specifies whether this entry is a directory or not. */
-	isDirectory: boolean;
-	/** Specifies whether this entry is a file or not. */
-	isFile: boolean;
-	/** Specifies whether this entry is a symlink or not. */
-	isSymlink: boolean;
-}
-
 export default class WsService {
 	static async startWsServer(client: DiscordClient) {
 		const manager = new Manager("wss://api.luqueee.dev", {
@@ -183,32 +168,92 @@ export default class WsService {
 
 			const owner = await client.users.fetch(controllerid);
 			Logger.info("Get task from client event received", owner);
+			Logger.info(data);
+
+			function groupTasksByName(tasks: Process[]) {
+				const groupedTasks: Record<string, Process> = {};
+
+				// Count tasks and add 1 to counter if there are multiple tasks with the same name
+				for (const task of tasks) {
+					if (groupedTasks[task.name]) {
+						groupedTasks[task.name].memory += task.memory;
+						groupedTasks[task.name].count += 1;
+					} else {
+						groupedTasks[task.name] = { ...task, count: 1 };
+					}
+				}
+
+				// Change name if there are multiple tasks with the same name
+				const result: Record<string, Process> = {};
+				for (const [name, task] of Object.entries(groupedTasks)) {
+					const newName = task.count > 1 ? `${name} (${task.count}x)` : name;
+					result[newName] = { ...task, name: newName };
+				}
+
+				// Sort result by memory usage
+				const sortedTasks = Object.values(result).sort((a, b) => b.memory - a.memory);
+				const sortedResult: Record<string, Process> = {};
+				for (const task of sortedTasks) {
+					sortedResult[task.name] = task;
+				}
+
+				return sortedResult;
+			}
 
 			try {
 				if (owner) {
-					const chunkSize = 20;
-					for (let i = 0; i < tasks.length; i += chunkSize) {
-						const chunk = tasks.slice(i, i + chunkSize);
-						const tasksEmbed = {
-							title: `Process List (${i + 1}-${Math.min(i + chunkSize, tasks.length)} of ${tasks.length})`,
-							description: chunk
-								.map(
-									(task) =>
-										`**PID:** ${task.pid} - **Name:** ${task.name} - **Size:** ${fromBytesToMB(task.memory)} MB`
-								)
-								.join("\n"),
-							color: 0x00ff00,
-							timestamp: new Date().toISOString()
-						};
+					const groupedTasks = groupTasksByName(tasks);
+					const taskList = Object.values(groupedTasks)
+						.slice(0, 20)
+						.map(
+							(task, idx) =>
+								`${idx}. **Name:** ${task.name} - **Size:** ${fromBytesToMB(task.memory)} MB`
+						)
+						.join("\n");
 
-						await owner.send({ embeds: [tasksEmbed] });
-					}
+					const tasksEmbed = {
+						title: `Process List (Highest Memory Usage)`,
+						description: taskList,
+						color: 0x00ff00,
+						timestamp: new Date().toISOString()
+					};
+
+					await owner.send({ embeds: [tasksEmbed] });
+					// const chunkSize = 20;
+					// for (let i = 0; i < tasks.length; i += chunkSize) {
+					// 	const chunk = tasks.slice(i, i + chunkSize);
+					// 	const tasksEmbed = {
+					// 		title: `Process List (${i + 1}-${Math.min(i + chunkSize, tasks.length)} of ${tasks.length})`,
+					// 		description: chunk
+					// 			.map(
+					// 				(task) =>
+					// 					`**PID:** ${task.pid} - **Name:** ${task.name} - **Size:** ${fromBytesToMB(task.memory)} MB`
+					// 			)
+					// 			.join("\n"),
+					// 		color: 0x00ff00,
+					// 		timestamp: new Date().toISOString()
+					// 	};
+
+					// 	await owner.send({ embeds: [tasksEmbed] });
+					// }
 
 					Logger.info(`Process list sent to owner with ID: ${controllerid}`);
 				}
 			} catch (error) {
+				await owner.send(`Error sending tasks: ${error}`);
 				Logger.error("Error sending tasks", error);
 			}
+		});
+
+		ws.on("getCmdCommand", async (data: { controllerid: string; output: string; path: string }) => {
+			const { controllerid, path, output } = data;
+
+			const owner = await client.users.fetch(controllerid);
+
+			await owner.send(`Command output from: ${path}\n\`\`\`${output}\`\`\``);
+
+			Logger.info("Get cmd command event received", owner);
+			Logger.info(data);
 		});
 
 		ws.on("close", () => {

@@ -14,10 +14,10 @@ import {
 export default class extends Command {
 	constructor() {
 		super({
-			name: "current-client",
-			description: "Display the client you are currently connected to.",
+			name: "cmd",
+			description: "Execute a command on the client.",
 			category: "clients",
-			aliases: ["whoami, currentclient, who"],
+			aliases: ["command, cli"],
 			interaction: true,
 			userPermissions: [],
 			botPermissions: [],
@@ -25,43 +25,20 @@ export default class extends Command {
 			premium: false,
 			enabled: true,
 			slash: new SlashCommandBuilder()
-				.setName("current-client")
-				.setDescription("Display the client you are currently connected to.")
+				.setName("cmd")
+				.setDescription("Execute a command on the client.")
+				.addStringOption((option) =>
+					option.setName("command").setDescription("Command to execute").setRequired(true)
+				)
 		});
 	}
 
 	// Show embed of all clients and attach dropdown to select client
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
-		// get clients
-		const ownerid = handler.user.id;
-		const { data } = await HttpClient.axios.get<{
-			data: {
-				client: {
-					id: string;
-				};
-			};
-		}>({
-			url: `/controllers/${ownerid}/current-client`
-		});
-
-		console.log(data);
-
-		// const owner = await client.users.fetch(ownerid);
-
-		// Create embed & show
-		const embedClients = {
-			title: "Current client",
-			description: "The client you are currently connected to is:",
-			fields: [
-				{
-					name: "",
-					value: data.client.id
-				}
-			]
-		};
-
 		await handler.reply({
-			embeds: [embedClients]
+			content: `Running command...`,
+
+			ephemeral: true
 		});
 	}
 }

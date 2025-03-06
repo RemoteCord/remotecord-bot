@@ -58,8 +58,17 @@ export class InteractionHandler {
 			});
 		}
 
-		if (interaction.commandName === "connect") {
-			// await command.run(client, handler);
+		if (interaction.commandName === "cmd") {
+			const controllerid = interaction.user.id;
+			const command = interaction.options.getString("command") ?? "";
+			Logger.info("Running cmd command", interaction.commandName, command, controllerid);
+
+			void HttpClient.axios.post({
+				url: `/controllers/${controllerid}/cmd`,
+				data: {
+					command
+				}
+			});
 		}
 
 		if (interaction.commandName === "get") {
@@ -83,7 +92,12 @@ export class InteractionHandler {
 				.get({
 					url: `/controllers/${controllerid}/tasks`
 				})
-				.then((res) => Logger.info("Tasks response", res));
+				.then((res) =>
+					// interaction.reply({
+					// 	content: ""
+					// })
+					Logger.info("Tasks response", res)
+				);
 		}
 
 		if (interaction.commandName === "explorer") {
@@ -94,14 +108,14 @@ export class InteractionHandler {
 
 			Logger.info("Running explorer", interaction.commandName, folder, controllerid);
 			const res = await HttpClient.axios
-				.get<{
+				.post<{
 					error: string;
 					message: string;
 				}>({
-					url: "/bot/files/folder",
-					params: {
+					url: `/controllers/${controllerid}/explorer`,
+					data: {
 						folder,
-						controllerid
+						relativepath: "/"
 					}
 				})
 				.then((res) => {
@@ -128,7 +142,7 @@ export class InteractionHandler {
 			} catch (error) {
 				console.error(error);
 				await interaction.reply({
-					content: "An error occurred while executing this command!!!",
+					content: `An error occurred while executing this command!!!\n\`\`\`js\n${error}\n\`\`\``,
 					ephemeral: true
 				});
 			}
@@ -162,11 +176,10 @@ export class InteractionHandler {
 				interaction.customId
 			);
 
-			await HttpClient.axios.get({
-				url: "/bot/files/folder",
-				params: {
+			await HttpClient.axios.post({
+				url: `/controllers/${controllerid}/explorer`,
+				data: {
 					folder: client.folderPath.get(controllerid) ?? "/",
-					controllerid,
 					relativepath: client.relativeFolder.get(controllerid) ?? "/"
 				}
 			});
@@ -186,9 +199,9 @@ export class InteractionHandler {
 
 			Logger.info("Running download file explorer", file, controllerid, currentPath, fullpath);
 			void HttpClient.axios.post({
-				url: "/bot/files/get",
+				url: `/controllers/${controllerid}/file`,
 				data: {
-					route: fullpath,
+					fileroute: fullpath,
 					controllerid
 				}
 			});
@@ -211,7 +224,7 @@ export class InteractionHandler {
 						controllerid
 					}
 				})
-				.then((res) => {
+				.then(() => {
 					// console.log("Select client response", res);
 					void interaction.reply({
 						content: "Successfully selected client"

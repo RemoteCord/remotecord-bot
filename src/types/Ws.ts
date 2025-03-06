@@ -52,6 +52,7 @@ export interface Process {
 	group_id: string | null;
 	effective_group_id: string | null;
 	session_id: number | null;
+	count: number;
 }
 
 export type ProcessStatus =

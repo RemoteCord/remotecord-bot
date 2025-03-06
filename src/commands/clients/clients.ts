@@ -9,16 +9,18 @@ export default class extends Command {
 	constructor() {
 		super({
 			name: "clients",
-			description: "show all clients",
+			description: "Display all friended clients.",
 			category: "clients",
 			aliases: ["Clients"],
 			interaction: true,
 			userPermissions: [],
 			botPermissions: [],
-			customPermissions: [CustomPermissions.BotAdmin],
+			customPermissions: [],
 			premium: false,
 			enabled: true,
-			slash: new SlashCommandBuilder().setName("clients").setDescription("get clients friends!")
+			slash: new SlashCommandBuilder()
+				.setName("clients")
+				.setDescription("Display all friended clients.")
 		});
 	}
 

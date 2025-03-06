@@ -9,25 +9,27 @@ export default class extends Command {
 	constructor() {
 		super({
 			name: "tasks",
-			description: "get tasks from client!",
+			description: "Get currently running tasks from task manager.",
 			category: "commands",
 			aliases: ["Tasks"],
 			interaction: true,
 			userPermissions: [],
 			botPermissions: [],
-			customPermissions: [CustomPermissions.BotAdmin],
+			customPermissions: [],
 			premium: false,
 			enabled: true,
-			slash: new SlashCommandBuilder().setName("tasks").setDescription("get tasks from client!")
+			slash: new SlashCommandBuilder()
+				.setName("tasks")
+				.setDescription("Get currently running tasks from task manager.")
 		});
 	}
 
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
 		// Logger.info("Running tasks command", handler.user.id);
-		const controllerId = handler.user.id;
+		// const controllerId = handler.user.id;
 
 		await handler.reply({
-			content: `Tasks get!`,
+			content: `Getting tasks...`,
 
 			ephemeral: true
 		});

@@ -3,7 +3,7 @@ import type { CommandHandler } from "@/handlers/CommandHandler";
 import { Logger } from "@/shared/Logger";
 import { Command } from "@/structures/Command";
 import { CustomPermissions } from "@/types/Permissions";
-import { DirEntry, type GetFilesFolder } from "@/types/Ws";
+import { type GetFilesFolder } from "@/types/Ws";
 import {
 	ActionRowBuilder,
 	type AutocompleteInteraction,
@@ -11,7 +11,6 @@ import {
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder
 } from "discord.js";
-import path from "path";
 import { type Socket } from "socket.io-client";
 
 export default class extends Command {
@@ -78,11 +77,11 @@ export default class extends Command {
 					const foldersList = files.filter((file) => file.isDirectory).map((file) => file.name);
 					const filesList = files
 						.filter((file) => file.isFile)
-						.filter((file) => file.size / (1024 * 1024) <= 10)
+						.filter((file) => file.size / (1024 * 1024) <= 1000)
 						.sort((a, b) => {
 							const fileA = files.find((f) => f.name === a.name);
 							const fileB = files.find((f) => f.name === b.name);
-							return (fileA?.size || 0) - (fileB?.size || 0);
+							return (fileB?.size || 0) - (fileA?.size || 0); // Changed order here
 						})
 						.slice(0, 50)
 						.map((file) => `${file.name} - ${(file.size / (1024 * 1024)).toFixed(2)} MB`);
