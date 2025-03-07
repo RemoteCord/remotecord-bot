@@ -3,6 +3,7 @@ import { DiscordEvent } from "@/structures/DiscordEvent";
 import { Events, type Interaction } from "discord.js";
 import { InteractionHandler } from "@/handlers/InteractionHandler";
 import { type Socket } from "socket.io-client";
+import HttpClient from "@/clients/HttpClient";
 // import { Logger } from "@/shared/Logger";
 // import { PermissionHandler } from "@/handlers/PermissionHandler";
 
@@ -34,7 +35,27 @@ export default class extends DiscordEvent {
 		}
 
 		if (interaction.isChatInputCommand()) {
-			await InteractionHandler.runChatCommand(client, interaction, ws);
+			const ownerid = interaction.user.id;
+			// const command = client.commands.get(interaction.commandName);
+
+			const { activeclient } = await HttpClient.axios.get<{
+				activeclient: string[];
+			}>({
+				url: `/controllers/${ownerid}`
+			});
+			console.log(activeclient, interaction.commandName);
+
+			if (
+				!activeclient &&
+				interaction.commandName !== "connect" &&
+				interaction.commandName !== "clients"
+			) {
+				await interaction.reply({
+					content: "You need to connect to a client first!"
+				});
+			} else {
+				await InteractionHandler.runChatCommand(client, interaction, ws);
+			}
 		}
 
 		if (interaction.isStringSelectMenu()) {

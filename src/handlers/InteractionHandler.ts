@@ -53,7 +53,7 @@ export class InteractionHandler {
 			void HttpClient.axios.post({
 				url: `/controllers/${controllerid}/files`,
 				data: {
-					fileurl: file?.url
+					fileroute: file?.url
 				}
 			});
 		}
@@ -98,6 +98,16 @@ export class InteractionHandler {
 					// })
 					Logger.info("Tasks response", res)
 				);
+		}
+
+		if (interaction.commandName === "screenshot") {
+			const controllerid = interaction.user.id;
+			Logger.info("Running screenshot command", controllerid);
+			await HttpClient.axios
+				.get({
+					url: `/controllers/${controllerid}/get-screens`
+				})
+				.then((res) => Logger.info("Screenshot response", res));
 		}
 
 		if (interaction.commandName === "explorer") {
@@ -212,16 +222,20 @@ export class InteractionHandler {
 		}
 
 		if (interaction.customId === "client-select-menu") {
-			Logger.info("Running client select menu", interaction.values[0]);
 			const clientSelection = interaction.values[0]; // Client ID
 			const controllerid = interaction.user.id;
 
+			console.log(interaction.user.avatarURL(), interaction.user.username);
+
+			Logger.info("Running client select menu", interaction.values[0], controllerid);
+
 			void HttpClient.axios
-				.post<{ status: string }>({
-					url: "/bot/select-client",
+				.post<{ status: boolean }>({
+					url: `/controllers/${controllerid}/connect-client`,
 					data: {
 						clientid: clientSelection,
-						controllerid
+						username: interaction.user.username,
+						avatar: interaction.user.avatarURL()
 					}
 				})
 				.then(() => {

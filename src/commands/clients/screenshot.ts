@@ -14,73 +14,61 @@ import {
 export default class extends Command {
 	constructor() {
 		super({
-			name: "connect",
-			description: "Connect to a client you have friended",
+			name: "screenshot",
+			description: "Make a screenshot",
 			category: "clients",
-			aliases: ["Connect, con"],
+			aliases: ["Screenshot, screen"],
 			interaction: true,
 			userPermissions: [],
 			botPermissions: [],
 			customPermissions: [],
 			premium: false,
 			enabled: true,
-			slash: new SlashCommandBuilder()
-				.setName("connect")
-				.setDescription("Connect to a client you have friended.")
+			slash: new SlashCommandBuilder().setName("screenshot").setDescription("aaaa.")
 		});
 	}
 
 	// Show embed of all clients and attach dropdown to select client
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
 		// get clients
-		const ownerid = handler.user.id;
-		const { clients } = await HttpClient.axios.get<{
-			clients: string[];
-		}>({
-			url: `/controllers/${ownerid}/friends`
-		});
 
-		console.log(clients);
+		// console.log(clients);
 
-		// const owner = await client.users.fetch(ownerid);
+		// // Create embed & show
+		// const embedClients = {
+		// 	title: "Clients",
+		// 	description: "List of friended clients:",
+		// 	fields: [
+		// 		{
+		// 			name: "Clients",
+		// 			value: clients.join("\n")
+		// 		}
+		// 	]
+		// };
 
-		// Create embed & show
-		const embedClients = {
-			title: "Clients",
-			description: "List of friended clients:",
-			fields: [
-				{
-					name: "Clients",
-					value: clients.join("\n")
-				}
-			]
-		};
+		// // await handler.reply({
 
-		// await handler.reply({
+		// // });
 
-		// });
+		// const components = [];
 
-		const components = [];
+		// const selectionClient = new StringSelectMenuBuilder()
+		// 	.setCustomId("client-select-menu")
+		// 	.setPlaceholder("Select a client")
+		// 	.addOptions(
+		// 		clients.map((client) =>
+		// 			new StringSelectMenuOptionBuilder().setLabel(client).setValue(client)
+		// 		)
+		// 	);
 
-		const selectionClient = new StringSelectMenuBuilder()
-			.setCustomId("client-select-menu")
-			.setPlaceholder("Select a client")
-			.addOptions(
-				clients.map((client) =>
-					new StringSelectMenuOptionBuilder().setLabel(client).setValue(client)
-				)
-			);
+		// const rowSelectionClient = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+		// 	selectionClient
+		// );
 
-		const rowSelectionClient = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-			selectionClient
-		);
-
-		components.push(rowSelectionClient);
+		// components.push(rowSelectionClient);
 
 		await handler.reply({
-			content: `All clients`,
-			embeds: [embedClients],
-			components
+			content: `Getting screens...`
 		});
 	}
 }

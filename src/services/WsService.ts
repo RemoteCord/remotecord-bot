@@ -1,84 +1,128 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import { Logger } from "@/shared/Logger";
 import { type FileMulter } from "@/types/Multer";
-import { Manager } from "socket.io-client";
+import { io, Manager, type Socket } from "socket.io-client";
 import { AttachmentBuilder } from "discord.js";
 import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
 
 export default class WsService {
-	static async startWsServer(client: DiscordClient) {
-		const manager = new Manager("wss://api.luqueee.dev", {
-			autoConnect: true
-		});
+	private static currentSocket: Socket | null = null;
 
-		const ws = manager.socket(`/bot`, {
+	static cleanup() {
+		if (this.currentSocket) {
+			this.currentSocket.removeAllListeners();
+			this.currentSocket.disconnect();
+			this.currentSocket = null;
+		}
+	}
+
+	static async startWsServer(client: DiscordClient) {
+		this.cleanup(); // Clean up any existing connection
+
+		const ws = io(`wss://api2.luqueee.dev/bot`, {
+			autoConnect: true,
+			reconnectionDelayMax: 10000,
 			auth: {
 				token: process.env.API_TOKEN
 			}
 		});
 
-		manager.open((err) => {
-			if (err) {
-				Logger.error(`Error connecting to WebSocket server: ${err}`);
-			} else {
-				Logger.info("Connected to WebSocket server");
-			}
-		});
+		this.currentSocket = ws;
+
+		// manager.open((err) => {
+		// 	if (err) {
+		// 		Logger.error(`Error connecting to WebSocket server: ${err}`);
+		// 	} else {
+		// 		Logger.info("Connected to WebSocket server");
+		// 	}
+		// });
 
 		ws.on("disconnectedClient", async (data: { controllerid: string; clientid: string }) => {
-			const { controllerid, clientid } = data;
+			try {
+				const { controllerid, clientid } = data;
 
-			Logger.info(`Client with ID: ${clientid} disconnected`);
-			const owner = await client.users.fetch(controllerid);
-			if (owner) {
-				const embed = {
-					title: "Client Disconnected",
-					description: `A client has been disconnected from your session`,
-					fields: [
-						{
-							name: "Client ID",
-							value: clientid,
-							inline: true
-						}
-					],
-					color: 0xff0000,
-					timestamp: new Date().toISOString()
-				};
+				if (!controllerid || controllerid === "null") {
+					Logger.warn("Invalid controller ID received");
+					return;
+				}
 
-				await owner.send({ embeds: [embed] });
-				Logger.info(`Client with ID: ${clientid} disconnected`);
-			} else {
-				Logger.warn(`Owner not found for ID: ${controllerid}`);
+				const owner = await client.users.fetch(controllerid);
+				if (owner) {
+					const embed = {
+						title: "Client Disconnected",
+						description: `A client has been disconnected from your session`,
+						fields: [
+							{
+								name: "Client ID",
+								value: clientid,
+								inline: true
+							}
+						],
+						color: 0xff0000,
+						timestamp: new Date().toISOString()
+					};
+
+					await owner.send({ embeds: [embed] });
+					Logger.info(`Client with ID: ${clientid} disconnected`);
+				} else {
+					Logger.warn(`Owner not found for ID: ${controllerid}`);
+				}
+			} catch (error) {
+				Logger.error("Error sending message", error);
 			}
 		});
 
 		ws.on("connectedClient", async (data: { controllerid: string; clientid: string }) => {
-			const { controllerid, clientid } = data;
+			try {
+				const { controllerid, clientid } = data;
 
-			Logger.info(`Client with ID: ${clientid} connected`);
-			const owner = await client.users.fetch(controllerid);
-			if (owner) {
-				const embed = {
-					title: "Client Connected",
-					description: `A client has successfully connected `,
-					fields: [
-						{
-							name: "Client ID",
-							value: clientid,
-							inline: true
-						}
-					],
-					color: 0x00ff00,
-					timestamp: new Date().toISOString()
-				};
+				const owner = await client.users.fetch(controllerid);
+				if (owner) {
+					const embed = {
+						title: "Client Connected",
+						description: `A client has successfully connected `,
+						fields: [
+							{
+								name: "Client ID",
+								value: clientid,
+								inline: true
+							}
+						],
+						color: 0x00ff00,
+						timestamp: new Date().toISOString()
+					};
+					Logger.info(`Client with ID: ${clientid} connected`);
 
-				await owner.send({ embeds: [embed] });
-				Logger.info(`Client with ID: ${clientid} disconnected`);
-			} else {
-				Logger.warn(`Owner not found for ID: ${controllerid}`);
+					await owner.send({ embeds: [embed] });
+				} else {
+					Logger.warn(`Owner not found for ID: ${controllerid}`);
+				}
+			} catch (error) {
+				Logger.error("Error sending message", error);
 			}
 		});
+
+		ws.on(
+			"sendScreensToBot",
+			async (data: {
+				controllerid: string;
+				screens: Array<{
+					id: number;
+					resolution: [number, number];
+					frequency: number;
+					isprimary: boolean;
+				}>;
+			}) => {
+				const { controllerid, screens } = data;
+
+				Logger.info("Sending screens", screens, "to controller", controllerid);
+
+				const owner = await client.users.fetch(controllerid);
+
+				// TODO
+			}
+		);
 
 		ws.on("sendImageToController", async (data: FileMulterWs) => {
 			const { controllerid, file } = data;

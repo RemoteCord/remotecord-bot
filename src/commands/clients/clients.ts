@@ -27,15 +27,13 @@ export default class extends Command {
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
 		const ownerid = handler.user.id;
 
-		const { data } = await HttpClient.axios.get<{
-			data: {
-				clients: string[];
-			};
+		const { clients } = await HttpClient.axios.get<{
+			clients: string[];
 		}>({
 			url: `/controllers/${ownerid}/friends`
 		});
 
-		console.log(data);
+		console.log(clients);
 
 		const embedClients = {
 			title: "Clients",
@@ -43,7 +41,7 @@ export default class extends Command {
 			fields: [
 				{
 					name: "Clients",
-					value: data.clients.join("\n")
+					value: clients.join("\n")
 				}
 			]
 		};
