@@ -8,7 +8,7 @@ export default class extends Command {
 	constructor() {
 		super({
 			name: "get",
-			description: "get file from a client!",
+			description: "Download a file from the client",
 			category: "commands",
 			aliases: ["Get"],
 			interaction: true,
@@ -19,9 +19,9 @@ export default class extends Command {
 			enabled: true,
 			slash: new SlashCommandBuilder()
 				.setName("get")
-				.setDescription("get file from a client!")
+				.setDescription("Download a file from the client")
 				.addStringOption((option) =>
-					option.setName("route").setDescription("the route of the file").setRequired(true)
+					option.setName("route").setDescription("The file path").setRequired(true)
 				)
 				.addStringOption((option) =>
 					option

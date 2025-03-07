@@ -1,7 +1,7 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import { Logger } from "@/shared/Logger";
 import { type FileMulter } from "@/types/Multer";
-import { io, Manager, type Socket } from "socket.io-client";
+import { Manager, type Socket } from "socket.io-client";
 import { AttachmentBuilder } from "discord.js";
 import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
@@ -294,7 +294,25 @@ export default class WsService {
 
 			const owner = await client.users.fetch(controllerid);
 
-			await owner.send(`Command output from: ${path}\n\`\`\`${output}\`\`\``);
+			const MAX_LENGTH = 20000;
+			const CHUNK_SIZE = 1900;
+			if (output.length > MAX_LENGTH) {
+				await owner.send(`Command output is too large to be sent. (Over 20,000 characters)`);
+			} else {
+				for (let i = 0; i < output.length; i += CHUNK_SIZE) {
+					const chunk = output.substring(i, i + CHUNK_SIZE);
+					const embed = {
+						title: `Command Output`,
+						description: `\`\`\`${chunk}\`\`\``,
+						color: 0x00ff00,
+						timestamp: new Date().toISOString()
+					};
+					await owner.send({
+						content: `Path: \`${path}\``,
+						embeds: [embed]
+					});
+				}
+			}
 
 			Logger.info("Get cmd command event received", owner);
 			Logger.info(data);
