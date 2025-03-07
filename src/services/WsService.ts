@@ -1,7 +1,7 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import { Logger } from "@/shared/Logger";
 import { type FileMulter } from "@/types/Multer";
-import { Manager, type Socket } from "socket.io-client";
+import { io, Manager, type Socket } from "socket.io-client";
 import { AttachmentBuilder } from "discord.js";
 import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
