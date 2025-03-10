@@ -24,7 +24,7 @@ export default class extends Command {
 			customPermissions: [],
 			premium: false,
 			enabled: true,
-			slash: new SlashCommandBuilder().setName("screenshot").setDescription("aaaa.")
+			slash: new SlashCommandBuilder().setName("screenshot").setDescription("Make a screenshot.")
 		});
 	}
 
