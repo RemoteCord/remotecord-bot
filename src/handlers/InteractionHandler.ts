@@ -51,7 +51,7 @@ export class InteractionHandler {
 			const controllerid = interaction.user.id;
 
 			void HttpClient.axios.post({
-				url: `/controllers/${controllerid}/files`,
+				url: `/controllers/${controllerid}/upload-file`,
 				data: {
 					fileroute: file?.url
 				}
@@ -124,7 +124,7 @@ export class InteractionHandler {
 				}>({
 					url: `/controllers/${controllerid}/explorer`,
 					data: {
-						folder,
+						folder: folder ?? "Desktop",
 						relativepath: "/"
 					}
 				})
@@ -133,19 +133,18 @@ export class InteractionHandler {
 					return res;
 				});
 
-			if (!res.error) {
+			if (res.error) {
+				await interaction.reply({
+					content: res.error,
+					ephemeral: true
+				});
+			} else {
 				await command.run(client, handler, ws);
 				await interaction.reply({
 					content: "explorer",
 					ephemeral: true
 				});
-				return;
 			}
-
-			await interaction.reply({
-				content: res.error,
-				ephemeral: true
-			});
 		} else {
 			try {
 				await command.run(client, handler);

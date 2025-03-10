@@ -28,7 +28,10 @@ export default class extends Command {
 		const ownerid = handler.user.id;
 
 		const { clients } = await HttpClient.axios.get<{
-			clients: string[];
+			clients: Array<{
+				clientid: string;
+				isactive: boolean;
+			}>;
 		}>({
 			url: `/controllers/${ownerid}/friends`
 		});
@@ -41,12 +44,12 @@ export default class extends Command {
 			fields: [
 				{
 					name: "Clients",
-					value: clients.join("\n")
+					value: clients.map((client) => `${client.clientid} - ${client.isactive}`).join("\n")
 				}
 			]
 		};
 
-		await handler.send({
+		await handler.reply({
 			content: `All clients`,
 			embeds: [embedClients]
 		});

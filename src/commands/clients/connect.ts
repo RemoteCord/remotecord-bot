@@ -35,7 +35,10 @@ export default class extends Command {
 		// get clients
 		const ownerid = handler.user.id;
 		const { clients } = await HttpClient.axios.get<{
-			clients: string[];
+			clients: Array<{
+				clientid: string;
+				isactive: boolean;
+			}>;
 		}>({
 			url: `/controllers/${ownerid}/friends`
 		});
@@ -51,7 +54,10 @@ export default class extends Command {
 			fields: [
 				{
 					name: "Clients",
-					value: clients.join("\n")
+					value: clients
+						.filter((client) => client.isactive)
+						.map((client) => client.clientid)
+						.join("\n")
 				}
 			]
 		};
@@ -67,7 +73,7 @@ export default class extends Command {
 			.setPlaceholder("Select a client")
 			.addOptions(
 				clients.map((client) =>
-					new StringSelectMenuOptionBuilder().setLabel(client).setValue(client)
+					new StringSelectMenuOptionBuilder().setLabel(client.clientid).setValue(client.clientid)
 				)
 			);
 

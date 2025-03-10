@@ -77,7 +77,7 @@ export default class extends Command {
 					const foldersList = files.filter((file) => file.isDirectory).map((file) => file.name);
 					const filesList = files
 						.filter((file) => file.isFile)
-						.filter((file) => file.size / (1024 * 1024) <= 1000)
+						.filter((file) => file.size / (1024 * 1024) <= 100)
 						.sort((a, b) => {
 							const fileA = files.find((f) => f.name === a.name);
 							const fileB = files.find((f) => f.name === b.name);

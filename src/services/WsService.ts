@@ -167,45 +167,74 @@ export default class WsService {
 			}
 		});
 
-		ws.on("downloadFile", async (data: { controllerid: string; file: FileMulter }) => {
-			const { controllerid, file } = data;
+		ws.on(
+			"downloadFile",
+			async (data: {
+				controllerid: string;
+				file: string;
+				fileMetadata: {
+					filename: string;
+					size: number;
+					format: string;
+				};
+			}) => {
+				const { controllerid, file, fileMetadata } = data;
 
-			console.log(file);
-			const fileSize = (file.size / 1024 / 1024).toFixed(2);
+				// console.log(file);
+				// const fileSize = (file.size / 1024 / 1024).toFixed(2);
 
-			const owner = await client.users.fetch(controllerid);
-			Logger.info(
-				"Test event received",
-				owner,
-				JSON.stringify({
-					...file,
-					buffer: []
-				})
-			);
+				const owner = await client.users.fetch(controllerid);
+				// Logger.info(
+				// 	"Test event received",
+				// 	owner,
+				// 	JSON.stringify({
+				// 		...file,
+				// 		buffer: []
+				// 	})
+				// );
 
-			try {
-				if (owner) {
-					const attachment = new AttachmentBuilder(file.buffer, { name: file.originalname });
-					const embed = {
-						title: "File Received",
-						description: `**file name:** ${file.originalname} \n **type:** ${file.mimetype} \n**file size:** ${fileSize} MB`,
+				try {
+					if (owner) {
+						// const attachment = new AttachmentBuilder(file.buffer, { name: file.originalname });
+						// const embed = {
+						// 	title: "File Received",
+						// 	description: `**file name:** ${file.originalname} \n **type:** ${file.mimetype} \n**file size:** ${fileSize} MB`,
 
-						color: 0x00ff00
-					};
+						// 	color: 0x00ff00
+						// };
 
-					await owner.send({
-						// content: `File from: ${controllerid}`,
-						embeds: [embed],
-						files: [attachment]
-					});
-					Logger.info(`File sent to owner with ID: ${controllerid}`);
-				} else {
-					Logger.warn(`Owner not found for ID: ${controllerid}`);
+						// await owner.send({
+						// 	// content: `File from: ${controllerid}`,
+						// 	embeds: [embed],
+						// 	files: [attachment]
+						// });
+
+						try {
+							console.log(file, file.split("/").pop());
+							await owner.send({
+								content: file,
+								files: [
+									{
+										attachment: file,
+										name: fileMetadata.filename
+									}
+								]
+							});
+						} catch (error) {
+							Logger.error("Error sending file, file too large");
+							await owner.send({
+								content: file
+							});
+						}
+						// Logger.info(`File sent to owner with ID: ${controllerid}`);
+					} else {
+						Logger.warn(`Owner not found for ID: ${controllerid}`);
+					}
+				} catch (error) {
+					Logger.error("Error sending file", error);
 				}
-			} catch (error) {
-				Logger.error("Error sending file", error);
 			}
-		});
+		);
 
 		ws.on("getTasksFromClient", async (data: { controllerid: string; tasks: Process[] }) => {
 			const { tasks, controllerid } = data;
