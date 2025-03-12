@@ -7,9 +7,14 @@ import { type GetFilesFolder } from "@/types/Ws";
 import {
 	ActionRowBuilder,
 	type AutocompleteInteraction,
+	ButtonBuilder,
+	ButtonStyle,
+	ModalBuilder,
 	SlashCommandBuilder,
 	StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder
+	StringSelectMenuOptionBuilder,
+	TextInputBuilder,
+	TextInputStyle
 } from "discord.js";
 import { type Socket } from "socket.io-client";
 
@@ -123,18 +128,50 @@ export default class extends Command {
 					components.push(rowFolder);
 
 					if (filesList.length > 0) {
-						const selectFiles = new StringSelectMenuBuilder()
+						// const selectFiles = new StringSelectMenuBuilder()
+						// 	.setCustomId("explorer-files-download")
+						// 	.setPlaceholder("Download a file!")
+						// 	.addOptions([
+						// 		...filesList
+						// 			.slice(0, 25)
+						// 			.map((file) => file.split(" - ")[0])
+						// 			.map((file) => new StringSelectMenuOptionBuilder().setLabel(file).setValue(file))
+						// 	]);
+						// const rowFiles = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+						// 	selectFiles
+						// );
+
+						const downloadButton = new ButtonBuilder()
 							.setCustomId("explorer-files-download")
-							.setPlaceholder("Download a file!")
-							.addOptions([
-								...filesList
-									.slice(0, 25)
-									.map((file) => file.split(" - ")[0])
-									.map((file) => new StringSelectMenuOptionBuilder().setLabel(file).setValue(file))
-							]);
-						const rowFiles = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-							selectFiles
-						);
+							.setLabel("Download a file")
+							.setStyle(ButtonStyle.Primary);
+
+						const rowFiles = new ActionRowBuilder<ButtonBuilder>().addComponents(downloadButton);
+
+						components.push(rowFiles);
+
+						client.on("interactionCreate", async (interaction) => {
+							if (!interaction.isButton()) return;
+
+							if (interaction.customId === "explorer-files-download") {
+								const modal = new ModalBuilder()
+									.setCustomId("download-modal")
+									.setTitle("Download File");
+
+								const fileNameInput = new TextInputBuilder()
+									.setCustomId("file-name")
+									.setLabel("File Name")
+									.setStyle(TextInputStyle.Short);
+
+								const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
+									fileNameInput
+								);
+								modal.addComponents(firstActionRow);
+
+								await interaction.showModal(modal);
+							}
+						});
+
 						components.push(rowFiles);
 					}
 

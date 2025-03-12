@@ -156,6 +156,21 @@ export class InteractionHandler {
 				});
 			}
 		}
+
+		if (interaction.commandName === "add") {
+			const controllerid = interaction.user.id;
+			Logger.info("Running add", controllerid);
+			
+			const clientid = interaction.options.getString("add");
+
+			void HttpClient.axios.post({
+				url: `/controllers/${controllerid}/add-friend`,
+				data: {
+					clientid
+				}
+			});
+
+		}
 	}
 
 	static async runStringSelectMenu(

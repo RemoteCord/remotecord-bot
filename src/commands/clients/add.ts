@@ -35,9 +35,9 @@ export default class extends Command {
 
 	// Show embed of all clients and attach dropdown to select client
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
-		handler.reply({
-			content: `Adding client...`,
-			ephemeral: true
-		});
+		// await handler.reply({
+		// 	content: `Adding client...`,
+		// 	ephemeral: true
+		// });
 	}
 }
