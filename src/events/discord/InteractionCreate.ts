@@ -27,7 +27,8 @@ export default class extends DiscordEvent {
 				`Is command: ${interaction.isCommand()}`,
 				`Is button: ${interaction.isButton()}`,
 				`Is chat input command: ${interaction.isChatInputCommand()}`,
-				`Is string select menu: ${interaction.isStringSelectMenu()}`
+				`Is string select menu: ${interaction.isStringSelectMenu()}`,
+				`Is modal: ${interaction.isModalSubmit()}`
 				// ws
 			);
 
@@ -37,6 +38,10 @@ export default class extends DiscordEvent {
 
 			if (interaction.isButton()) {
 				await InteractionHandler.runButton(client, interaction);
+			}
+
+			if (interaction.isModalSubmit()) {
+				await InteractionHandler.runModal(client, interaction);
 			}
 
 			if (interaction.isChatInputCommand()) {

@@ -1,10 +1,15 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
-import type {
-	AutocompleteInteraction,
-	ButtonComponent,
-	ButtonInteraction,
-	ChatInputCommandInteraction,
-	StringSelectMenuInteraction
+import {
+	ActionRowBuilder,
+	ModalBuilder,
+	type ModalSubmitInteraction,
+	TextInputBuilder,
+	TextInputStyle,
+	type AutocompleteInteraction,
+	type ButtonComponent,
+	type ButtonInteraction,
+	type ChatInputCommandInteraction,
+	type StringSelectMenuInteraction
 } from "discord.js";
 import { CommandHandler } from "./CommandHandler";
 import { PermissionHandler } from "./PermissionHandler";
@@ -12,6 +17,7 @@ import { type Socket } from "socket.io-client";
 import HttpClient from "@/clients/HttpClient";
 import { Logger } from "@/shared/Logger";
 import * as path from "path";
+import { emojis } from "@/shared";
 export class InteractionHandler {
 	static async runChatCommand(
 		client: DiscordClient,
@@ -140,10 +146,10 @@ export class InteractionHandler {
 				});
 			} else {
 				await command.run(client, handler, ws);
-				await interaction.reply({
-					content: "explorer",
-					ephemeral: true
-				});
+				// await interaction.reply({
+				// 	content: "explorer",
+				// 	ephemeral: true
+				// });
 			}
 		} else {
 			try {
@@ -151,7 +157,7 @@ export class InteractionHandler {
 			} catch (error) {
 				console.error(error);
 				await interaction.reply({
-					content: `An error occurred while executing this command!!!\n\`\`\`js\n${error}\n\`\`\``,
+					content: `${emojis.Error} An error occurred while executing this command!\n\`\`\`js\n${error}\n\`\`\``,
 					ephemeral: true
 				});
 			}
@@ -215,26 +221,27 @@ export class InteractionHandler {
 			});
 		}
 
-		if (interaction.customId === "explorer-files-download") {
-			const currentPath = client.relativeFolder.get(controllerid) ?? "/";
-			const folder = client.folderPath.get(controllerid) ?? "/";
-			const file = interaction.values[0];
+		// OLD AND UNUSED!
+		// if (interaction.customId === "explorer-files-download") {
+		// 	const currentPath = client.relativeFolder.get(controllerid) ?? "/";
+		// 	const folder = client.folderPath.get(controllerid) ?? "/";
+		// 	const file = interaction.values[0];
 
-			const fullpath = path.join(folder, path.join(currentPath, file));
+		// 	const fullpath = path.join(folder, path.join(currentPath, file));
 
-			Logger.info("Running download file explorer", file, controllerid, currentPath, fullpath);
-			void HttpClient.axios.post({
-				url: `/controllers/${controllerid}/file`,
-				data: {
-					fileroute: fullpath,
-					controllerid
-				}
-			});
-			await interaction.reply({
-				content: `Downloading...`,
-				ephemeral: true
-			});
-		}
+		// 	Logger.info("Running download file explorer", file, controllerid, currentPath, fullpath);
+		// 	void HttpClient.axios.post({
+		// 		url: `/controllers/${controllerid}/file`,
+		// 		data: {
+		// 			fileroute: fullpath,
+		// 			controllerid
+		// 		}
+		// 	});
+		// 	await interaction.reply({
+		// 		content: `Downloading...`,
+		// 		ephemeral: true
+		// 	});
+		// }
 
 		if (interaction.customId === "client-select-menu") {
 			const clientSelection = interaction.values[0]; // Client ID
@@ -245,7 +252,7 @@ export class InteractionHandler {
 			Logger.info("Running client select menu", interaction.values[0], controllerid);
 
 			void HttpClient.axios
-				.post<{ status: boolean }>({
+				.post<{ status: boolean; message?: string }>({
 					url: `/controllers/${controllerid}/connect-client`,
 					data: {
 						clientid: clientSelection,
@@ -253,20 +260,22 @@ export class InteractionHandler {
 						avatar: interaction.user.avatarURL()
 					}
 				})
-				.then(() => {
-					// console.log("Select client response", res);
-					void interaction.reply({
-						content: "Successfully selected client"
-					});
+				.then((res) => {
+					console.log("Select client response", res);
+					if (res.message === "Client already connected") {
+						void interaction.reply({
+							content: `${emojis.Error} ${res.message}`
+						});
+					}
 				});
 		}
 	}
 
 	static async runButton(client: DiscordClient, interaction: ButtonInteraction): Promise<void> {
 		const { customId, data } = interaction.component as ButtonComponent;
+		const controllerid = interaction.user.id;
 
 		if (interaction.customId.includes("screen-")) {
-			const controllerid = interaction.user.id;
 			const screen = interaction.customId.split("-")[1];
 
 			Logger.info("Running screen button", screen, controllerid);
@@ -277,6 +286,20 @@ export class InteractionHandler {
 					screen
 				}
 			});
+		}
+
+		if (interaction.customId === "explorer-files-download") {
+			const modal = new ModalBuilder().setCustomId("download-modal").setTitle("Download File");
+
+			const fileNameInput = new TextInputBuilder()
+				.setCustomId("file-name")
+				.setLabel("File Name")
+				.setStyle(TextInputStyle.Short);
+
+			const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(fileNameInput);
+			modal.addComponents(firstActionRow);
+
+			await interaction.showModal(modal);
 		}
 
 		console.log("Running button", customId, data);
@@ -292,5 +315,32 @@ export class InteractionHandler {
 		// console.log("Running autocomplete", interaction, command);
 
 		await command.autocomplete(interaction);
+	}
+
+	static async runModal(client: DiscordClient, interaction: ModalSubmitInteraction): Promise<void> {
+		if (interaction.customId === "download-modal") {
+			const controllerid = interaction.user.id;
+
+			const currentPath = client.relativeFolder.get(controllerid) ?? "/";
+			const folder = client.folderPath.get(controllerid) ?? "/";
+
+			const fileName = interaction.fields.getTextInputValue("file-name");
+			const fullPath = path.join(folder, path.join(currentPath, fileName));
+
+			Logger.info("Running download modal", fileName, controllerid);
+
+			void HttpClient.axios.post({
+				url: `/controllers/${controllerid}/file`,
+				data: {
+					fileroute: fullPath,
+					controllerid
+				}
+			});
+
+			await interaction.reply({
+				content: `${emojis.Loading} Downloading ${fileName}...`,
+				ephemeral: true
+			});
+		}
 	}
 }

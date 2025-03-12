@@ -258,7 +258,6 @@ export default class WsService {
 						try {
 							console.log(file, file.split("/").pop());
 							await owner.send({
-								content: file,
 								files: [
 									{
 										attachment: file,
@@ -267,10 +266,14 @@ export default class WsService {
 								]
 							});
 						} catch (error) {
-							Logger.error("Error sending file, file too large");
-							await owner.send({
-								content: file
-							});
+							Logger.info("File too large, only sending link");
+							const embed = {
+								title: "File Download Link",
+								description: `[Click here to download the file](${file})`,
+								color: 0x00ff00,
+								timestamp: new Date().toISOString()
+							};
+							await owner.send({ embeds: [embed] });
 						}
 						// Logger.info(`File sent to owner with ID: ${controllerid}`);
 					} else {

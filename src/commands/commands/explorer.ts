@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
 import { Logger } from "@/shared/Logger";
@@ -16,6 +17,7 @@ import {
 	TextInputBuilder,
 	TextInputStyle
 } from "discord.js";
+import path from "path";
 import { type Socket } from "socket.io-client";
 
 export default class extends Command {
@@ -89,7 +91,9 @@ export default class extends Command {
 							return (fileB?.size || 0) - (fileA?.size || 0); // Changed order here
 						})
 						.slice(0, 50)
-						.map((file) => `${file.name} - ${(file.size / (1024 * 1024)).toFixed(2)} MB`);
+						.map(
+							(file) => `\`\`\`${file.name}\`\`\` *${(file.size / (1024 * 1024)).toFixed(3)} MB*`
+						);
 					const folders = foldersList.join("\n");
 
 					const embedFolders = {
@@ -104,8 +108,12 @@ export default class extends Command {
 						color: 0x00ff00
 					};
 
-					await owner.send({
-						content: `File structure from: ${controllerid}`,
+					const currentPath = client.relativeFolder.get(controllerid) ?? "/";
+					const folder = client.folderPath.get(controllerid) ?? "/";
+					const fullPath = path.join(folder, currentPath);
+
+				await owner.send({
+						content: `File structure from: ${fullPath}`,
 						embeds: [embedFolders, embedFiles]
 					});
 					Logger.info(`File structure sent to: ${controllerid}`);
@@ -128,51 +136,14 @@ export default class extends Command {
 					components.push(rowFolder);
 
 					if (filesList.length > 0) {
-						// const selectFiles = new StringSelectMenuBuilder()
-						// 	.setCustomId("explorer-files-download")
-						// 	.setPlaceholder("Download a file!")
-						// 	.addOptions([
-						// 		...filesList
-						// 			.slice(0, 25)
-						// 			.map((file) => file.split(" - ")[0])
-						// 			.map((file) => new StringSelectMenuOptionBuilder().setLabel(file).setValue(file))
-						// 	]);
-						// const rowFiles = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-						// 	selectFiles
-						// );
-
 						const downloadButton = new ButtonBuilder()
 							.setCustomId("explorer-files-download")
 							.setLabel("Download a file")
 							.setStyle(ButtonStyle.Primary);
 
-						const rowFiles = new ActionRowBuilder<ButtonBuilder>().addComponents(downloadButton);
+						const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(downloadButton);
 
-						components.push(rowFiles);
-
-						client.on("interactionCreate", async (interaction) => {
-							if (!interaction.isButton()) return;
-
-							if (interaction.customId === "explorer-files-download") {
-								const modal = new ModalBuilder()
-									.setCustomId("download-modal")
-									.setTitle("Download File");
-
-								const fileNameInput = new TextInputBuilder()
-									.setCustomId("file-name")
-									.setLabel("File Name")
-									.setStyle(TextInputStyle.Short);
-
-								const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-									fileNameInput
-								);
-								modal.addComponents(firstActionRow);
-
-								await interaction.showModal(modal);
-							}
-						});
-
-						components.push(rowFiles);
+						components.push(actionRow);
 					}
 
 					// client.emit("messageCreate", );
