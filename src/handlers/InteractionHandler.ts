@@ -9,7 +9,11 @@ import {
 	type ButtonComponent,
 	type ButtonInteraction,
 	type ChatInputCommandInteraction,
-	type StringSelectMenuInteraction
+	type StringSelectMenuInteraction,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder,
+	ButtonBuilder,
+	ButtonStyle
 } from "discord.js";
 import { CommandHandler } from "./CommandHandler";
 import { PermissionHandler } from "./PermissionHandler";
@@ -18,6 +22,7 @@ import HttpClient from "@/clients/HttpClient";
 import { Logger } from "@/shared/Logger";
 import * as path from "path";
 import { emojis } from "@/shared";
+import { GetFilesFolder } from "@/types/Ws";
 export class InteractionHandler {
 	static async runChatCommand(
 		client: DiscordClient,
@@ -145,11 +150,7 @@ export class InteractionHandler {
 					ephemeral: true
 				});
 			} else {
-				await command.run(client, handler, ws);
-				// await interaction.reply({
-				// 	content: "explorer",
-				// 	ephemeral: true
-				// });
+				await command.run(client, handler, ws, interaction);
 			}
 		} else {
 			try {
@@ -247,9 +248,13 @@ export class InteractionHandler {
 			const clientSelection = interaction.values[0]; // Client ID
 			const controllerid = interaction.user.id;
 
-			console.log(interaction.user.avatarURL(), interaction.user.username);
+			// console.log(interaction.user.avatarURL(), interaction.user.username);
 
 			Logger.info("Running client select menu", interaction.values[0], controllerid);
+
+			await interaction.reply({
+				content: `${emojis.Loading} Connecting to client ${clientSelection}`
+			});
 
 			void HttpClient.axios
 				.post<{ status: boolean; message?: string }>({
@@ -262,8 +267,12 @@ export class InteractionHandler {
 				})
 				.then((res) => {
 					console.log("Select client response", res);
-					if (res.message === "Client already connected") {
-						void interaction.reply({
+					if (res.status) {
+						void interaction.editReply({
+							content: `${emojis.Success} Connected to client ${clientSelection}`
+						});
+					} else {
+						void interaction.editReply({
 							content: `${emojis.Error} ${res.message}`
 						});
 					}
@@ -317,7 +326,11 @@ export class InteractionHandler {
 		await command.autocomplete(interaction);
 	}
 
-	static async runModal(client: DiscordClient, interaction: ModalSubmitInteraction): Promise<void> {
+	static async runModal(
+		client: DiscordClient,
+		interaction: ModalSubmitInteraction,
+		ws: Socket
+	): Promise<void> {
 		if (interaction.customId === "download-modal") {
 			const controllerid = interaction.user.id;
 
@@ -340,6 +353,12 @@ export class InteractionHandler {
 			await interaction.reply({
 				content: `${emojis.Loading} Downloading ${fileName}...`,
 				ephemeral: true
+			});
+
+			ws.once("downloadFile", async (data: GetFilesFolder) => {
+				await interaction.editReply({
+					content: `${emojis.Success} Downloaded ${fileName}`
+				});
 			});
 		}
 	}

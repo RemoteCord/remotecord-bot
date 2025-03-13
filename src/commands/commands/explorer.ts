@@ -112,8 +112,8 @@ export default class extends Command {
 					const folder = client.folderPath.get(controllerid) ?? "/";
 					const fullPath = path.join(folder, currentPath);
 
-				await owner.send({
-						content: `File structure from: ${fullPath}`,
+					await owner.send({
+						content: `📌 You are in: \`${fullPath}\``,
 						embeds: [embedFolders, embedFiles]
 					});
 					Logger.info(`File structure sent to: ${controllerid}`);

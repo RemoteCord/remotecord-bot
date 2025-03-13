@@ -5,6 +5,7 @@ import { io, Manager, type Socket } from "socket.io-client";
 import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
+import { emojis } from "@/shared";
 
 export default class WsService {
 	private static currentSocket: Socket | null = null;
@@ -375,7 +376,7 @@ export default class WsService {
 			const MAX_LENGTH = 20000;
 			const CHUNK_SIZE = 1900;
 			if (output.length > MAX_LENGTH) {
-				await owner.send(`Command output is too large to be sent. (Over 20,000 characters)`);
+				await owner.send(`${emojis.Error} Output is too large to be sent (Over 20,000 characters). Please try again on a folder with less files.`);
 			} else {
 				for (let i = 0; i < output.length; i += CHUNK_SIZE) {
 					const chunk = output.substring(i, i + CHUNK_SIZE);

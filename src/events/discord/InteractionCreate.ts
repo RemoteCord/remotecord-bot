@@ -41,7 +41,7 @@ export default class extends DiscordEvent {
 			}
 
 			if (interaction.isModalSubmit()) {
-				await InteractionHandler.runModal(client, interaction);
+				await InteractionHandler.runModal(client, interaction, ws);
 			}
 
 			if (interaction.isChatInputCommand()) {
