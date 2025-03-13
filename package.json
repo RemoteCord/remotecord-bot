@@ -2,12 +2,11 @@
 	"name": "diskox",
 	"version": "0.0.1",
 	"description": "Discord bot in typescript with modern structure",
-	"main": "index.ts",
+	"main": "src/index.ts",
 	"type": "module",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"start": "node --no-deprecation ./dist/index.js",
-		"build": "npm install && tsc --build --verbose",
+		"build": "tsc -p tsconfig.prod.json",
 		"dev": "tsx watch ./src/index.ts"
 	},
 	"keywords": [
