@@ -9,11 +9,7 @@ import {
 	type ButtonComponent,
 	type ButtonInteraction,
 	type ChatInputCommandInteraction,
-	type StringSelectMenuInteraction,
-	StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder,
-	ButtonBuilder,
-	ButtonStyle
+	type StringSelectMenuInteraction
 } from "discord.js";
 import { CommandHandler } from "./CommandHandler";
 import { PermissionHandler } from "./PermissionHandler";
@@ -22,7 +18,7 @@ import HttpClient from "@/clients/HttpClient";
 import { Logger } from "@/shared/Logger";
 import * as path from "path";
 import { emojis } from "@/shared";
-import { GetFilesFolder } from "@/types/Ws";
+import { type GetFilesFolder } from "@/types/Ws";
 export class InteractionHandler {
 	static async runChatCommand(
 		client: DiscordClient,

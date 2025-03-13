@@ -1,8 +1,6 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
-import { Logger } from "@/shared/Logger";
 import { Command } from "@/structures/Command";
-import { CustomPermissions } from "@/types/Permissions";
 import { SlashCommandBuilder } from "discord.js";
 
 export default class extends Command {

@@ -1,14 +1,7 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
 import { Command } from "@/structures/Command";
-import { CustomPermissions } from "@/types/Permissions";
-import {
-	ActionRowBuilder,
-	Interaction,
-	SlashCommandBuilder,
-	StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder
-} from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 
 export default class extends Command {
 	constructor() {

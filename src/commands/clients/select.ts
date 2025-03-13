@@ -2,7 +2,7 @@ import type { DiscordClient } from "@/clients/DiscordClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
 import { Command } from "@/structures/Command";
 import { CustomPermissions } from "@/types/Permissions";
-import { type AutocompleteInteraction, SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 
 export default class extends Command {
 	constructor() {

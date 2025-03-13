@@ -2,10 +2,8 @@ import type { DiscordClient } from "@/clients/DiscordClient";
 import HttpClient from "@/clients/HttpClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
 import { Command } from "@/structures/Command";
-import { CustomPermissions } from "@/types/Permissions";
 import {
 	ActionRowBuilder,
-	type AutocompleteInteraction,
 	SlashCommandBuilder,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder
