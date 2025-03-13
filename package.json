@@ -7,7 +7,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"start": "node --no-deprecation ./dist/index.js",
-		"build": "npm install && tsc --build --verbose",
+		"build": "tsc --build --verbose",
 		"dev": "tsx watch ./src/index.ts"
 	},
 	"keywords": [

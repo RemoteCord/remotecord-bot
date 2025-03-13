@@ -1,28 +1,27 @@
 {
-	"compilerOptions": {
-		"target": "ESNext",
-		"lib": ["ESNext"],
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"allowImportingTsExtensions": true,
-		"resolveJsonModule": true,
-		"declaration": true,
-		"emitDeclarationOnly": true,
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"strict": true,
-		"noUnusedLocals": true,
-		"skipLibCheck": true,
-		"outDir": "dist",
-		"declarationDir": "dist",
-		"rootDir": "src",
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["src/*"]
-		},
-		"typeRoots": ["node_modules/@types/**", "src/types/**"]
-	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "dist"],
-	"types": ["node"]
+    "compilerOptions": {
+        "target": "ESNext",
+        "lib": ["ESNext"],
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "resolveJsonModule": true,
+        "declaration": true,
+        "emitDeclarationOnly": false,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "noUnusedLocals": true,
+        "skipLibCheck": true,
+        "outDir": "dist",
+        "declarationDir": "dist",
+        "rootDir": "src",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"]
+        },
+        "typeRoots": ["node_modules/@types/**", "src/types/**"]
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"],
+    "types": ["node"]
 }
