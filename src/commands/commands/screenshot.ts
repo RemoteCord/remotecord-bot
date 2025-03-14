@@ -7,8 +7,8 @@ export default class extends Command {
 	constructor() {
 		super({
 			name: "screenshot",
-			description: "Make a screenshot",
-			category: "clients",
+			description: "Take a screenshot",
+			category: "commands",
 			aliases: ["Screenshot, screen"],
 			interaction: true,
 			userPermissions: [],

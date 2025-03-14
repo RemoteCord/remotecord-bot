@@ -8,7 +8,7 @@ export default class extends Command {
 		super({
 			name: "cmd",
 			description: "Execute a command on the client.",
-			category: "clients",
+			category: "commands",
 			aliases: ["command, cli"],
 			interaction: true,
 			userPermissions: [],
