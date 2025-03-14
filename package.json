@@ -6,7 +6,7 @@
 	"type": "module",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"start": "node --no-deprecation ./dist/index.js",
+		"start": "tsx ./src/index.ts",
 		"build": "tsc -p tsconfig.prod.json",
 		"dev": "tsx watch ./src/index.ts"
 	},
