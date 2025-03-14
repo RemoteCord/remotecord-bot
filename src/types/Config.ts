@@ -4,6 +4,8 @@ export interface EnvConfig extends NodeJS.ProcessEnv {
 	DISCORD_CLIENT_TOKEN?: string;
 	DISCORD_CLIENT_ID?: string;
 	PREFIX?: string;
+	API_URL?: string;
+	ENV_URL?: string;
 }
 
 export interface Config {

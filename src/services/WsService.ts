@@ -6,6 +6,8 @@ import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
 import { embeds, emojis } from "@/shared";
 
+const { WS_URL } = process.env;
+
 export default class WsService {
 	private static currentSocket: Socket | null = null;
 
@@ -20,7 +22,7 @@ export default class WsService {
 	static async startWsServer(client: DiscordClient) {
 		this.cleanup(); // Clean up any existing connection
 
-		const ws = io(`wss://api2.luqueee.dev/bot`, {
+		const ws = io(`${WS_URL}/bot`, {
 			autoConnect: true,
 			reconnectionDelayMax: 10000,
 			auth: {
