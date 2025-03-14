@@ -254,8 +254,7 @@ export default class WsService {
 						// 	embeds: [embed],
 						// 	files: [attachment]
 						// });
-
-						try {
+						if (fileMetadata.size < 10485760) {
 							console.log(file, file.split("/").pop());
 							await owner.send({
 								files: [
@@ -265,7 +264,7 @@ export default class WsService {
 									}
 								]
 							});
-						} catch (error) {
+						} else {
 							Logger.info("File too large, only sending link");
 							const embed = {
 								title: "File Download Link",
@@ -274,8 +273,9 @@ export default class WsService {
 								timestamp: new Date().toISOString()
 							};
 							await owner.send({ embeds: [embed] });
+
+							// Logger.info(`File sent to owner with ID: ${controllerid}`);
 						}
-						// Logger.info(`File sent to owner with ID: ${controllerid}`);
 					} else {
 						Logger.warn(`Owner not found for ID: ${controllerid}`);
 					}

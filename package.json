@@ -6,12 +6,8 @@
 	"type": "module",
 	"types": "dist/index.d.ts",
 	"scripts": {
-<<<<<<< HEAD
 		"start": "node --no-deprecation ./dist/index.js",
-		"build": "tsc --build --verbose",
-=======
 		"build": "tsc -p tsconfig.prod.json",
->>>>>>> 7fd042321f91900a25e164327f28b16d1124343f
 		"dev": "tsx watch ./src/index.ts"
 	},
 	"keywords": [
