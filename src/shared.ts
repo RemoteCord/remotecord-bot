@@ -6,3 +6,9 @@ export const emojis = {
 	Info: "<:Info:1349345440272879667>",
 	Settings: "<:Settings:1349345667641905203>"
 };
+
+export const embeds = {
+	Colors: {
+		default: 0x6784ae
+	}
+};

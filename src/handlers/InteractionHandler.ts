@@ -95,6 +95,7 @@ export class InteractionHandler {
 		if (interaction.commandName === "tasks") {
 			const controllerid = interaction.user.id;
 			Logger.info("Running tasks command", controllerid);
+
 			void HttpClient.axios
 				.get({
 					url: `/controllers/${controllerid}/tasks`
@@ -105,6 +106,18 @@ export class InteractionHandler {
 					// })
 					Logger.info("Tasks response", res)
 				);
+
+			await interaction.reply({
+				content: `${emojis.Loading} Getting tasks...`,
+				ephemeral: true
+			});
+
+			ws.once("getTasksFromClient", async () => {
+				Logger.info("Tasks loaded socket event");
+				await interaction.editReply({
+					content: `${emojis.Success} Tasks loaded.`
+				});
+			});
 		}
 
 		if (interaction.commandName === "screenshot") {
@@ -166,7 +179,11 @@ export class InteractionHandler {
 
 			const clientid = interaction.options.getString("add");
 
-			void HttpClient.axios.post({
+			await interaction.reply({
+				content: `${emojis.Loading} Adding client ${clientid}...`
+			});
+
+			const res = await HttpClient.axios.post<{ status: boolean; isAlreadyAdded: boolean }>({
 				url: `/controllers/${controllerid}/add-friend`,
 				data: {
 					clientid,
@@ -174,6 +191,84 @@ export class InteractionHandler {
 					avatar: interaction.user.avatarURL()
 				}
 			});
+
+			if (res.status) {
+				await interaction.editReply({
+					content: `${emojis.Success} ${clientid} was sent a friend request. Once they accept, you can now connect to them using </connect:1346449430064267335>`
+				});
+			} else {
+				if (res.isAlreadyAdded) {
+					await interaction.editReply({
+						content: `${emojis.Warning} You already added this client! Check your client list using </clients:1346410332507340812>`
+					});
+					return;
+				}
+
+				await interaction.editReply({
+					content: `${emojis.Error} An error occurred while adding ${clientid}.`
+				});
+			}
+		}
+
+		// ws.once("addFriend", async (data: {clientid:string, controllerid:string, accept:boolean}) => {
+
+		if (interaction.commandName === "activate") {
+			Logger.info("Running activate", interaction.user.id);
+			const controllerid = interaction.user.id;
+
+			await interaction.reply({
+				content: `${emojis.Loading} Activating your account...`
+			});
+
+			const res = await HttpClient.axios.post<{ status: boolean; isAlreadyActivated: boolean }>({
+				url: `/controllers/${controllerid}/activate`,
+				data: {
+					controllerid
+				}
+			});
+
+			// Logger.info("Activate response", JSON.stringify(res));
+			if (res.status) {
+				await interaction.editReply({
+					content: `${emojis.Success} Your account has been activated successfully!`
+				});
+			} else {
+				if (res.isAlreadyActivated) {
+					await interaction.editReply({
+						content: `${emojis.Warning} Your account is already activated. You do not need to activate your account again.`
+					});
+					return;
+				}
+
+				await interaction.editReply({
+					content: `${emojis.Error} An error occurred while activating your account.`
+				});
+			}
+		}
+
+		if (interaction.commandName === "disconnect") {
+			const controllerid = interaction.user.id;
+
+			await interaction.reply({
+				content: `${emojis.Loading} Disconnecting...`
+			});
+
+			const res = await HttpClient.axios.post<{ status: boolean }>({
+				url: `/controllers/${controllerid}/disconnect-client`,
+				data: {
+					controllerid
+				}
+			});
+
+			if (res.status) {
+				await interaction.editReply({
+					content: `${emojis.Success} Disconnected successfully.`
+				});
+			} else {
+				await interaction.editReply({
+					content: `${emojis.Error} An error occurred while disconnecting.`
+				});
+			}
 		}
 	}
 

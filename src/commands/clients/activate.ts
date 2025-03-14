@@ -6,10 +6,10 @@ import { SlashCommandBuilder } from "discord.js";
 export default class extends Command {
 	constructor() {
 		super({
-			name: "tasks",
-			description: "Get currently running tasks from task manager.",
-			category: "commands",
-			aliases: ["Tasks"],
+			name: "activate",
+			description: "Activate your account in our systems to get started.",
+			category: "clients",
+			aliases: ["register", "signup"],
 			interaction: true,
 			userPermissions: [],
 			botPermissions: [],
@@ -17,16 +17,16 @@ export default class extends Command {
 			premium: false,
 			enabled: true,
 			slash: new SlashCommandBuilder()
-				.setName("tasks")
-				.setDescription("Get currently running tasks from task manager.")
+				.setName("activate")
+				.setDescription("Activate your account in our systems to get started.")
 		});
 	}
 
+	// Show embed of all clients and attach dropdown to select client
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
-		// Logger.info("Running tasks command", handler.user.id);
-		// const controllerId = handler.user.id;
 		// await handler.reply({
-		// 	content: `${emojis.Loading} Getting tasks...`,
+		// 	content: `Adding client...`,
+		// 	ephemeral: true
 		// });
 	}
 }

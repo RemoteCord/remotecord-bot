@@ -4,7 +4,7 @@ import { io, type Socket } from "socket.io-client";
 import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
-import { emojis } from "@/shared";
+import { embeds, emojis } from "@/shared";
 
 export default class WsService {
 	private static currentSocket: Socket | null = null;
@@ -193,7 +193,7 @@ export default class WsService {
 						title: "File Received",
 						description: `**file name:** ${file.metadata.filename} \n **type:** ${file.metadata.format} \n**file size:** ${fileSize} MB`,
 
-						color: 0x00ff00
+						color: embeds.Colors.default
 					};
 
 					await owner.send({
@@ -270,7 +270,7 @@ export default class WsService {
 							const embed = {
 								title: "File Download Link",
 								description: `[Click here to download the file](${file})`,
-								color: 0x00ff00,
+								color: embeds.Colors.default,
 								timestamp: new Date().toISOString()
 							};
 							await owner.send({ embeds: [embed] });
@@ -334,9 +334,9 @@ export default class WsService {
 						.join("\n");
 
 					const tasksEmbed = {
-						title: `Process List (Highest Memory Usage)`,
+						title: `Process List (by Highest Memory Usage)`,
 						description: taskList,
-						color: 0x00ff00,
+						color: embeds.Colors.default,
 						timestamp: new Date().toISOString()
 					};
 
@@ -376,7 +376,7 @@ export default class WsService {
 			const CHUNK_SIZE = 1900;
 			if (output.length > MAX_LENGTH) {
 				await owner.send(
-					`${emojis.Error} Output is too large to be sent (Over 20,000 characters). Please try again on a folder with less files.`
+					`${emojis.Warning} Command Output is too large to be sent (Over 20,000 characters).`
 				);
 			} else {
 				for (let i = 0; i < output.length; i += CHUNK_SIZE) {
@@ -384,11 +384,11 @@ export default class WsService {
 					const embed = {
 						title: `Command Output`,
 						description: `\`\`\`${chunk}\`\`\``,
-						color: 0x00ff00,
+						color: embeds.Colors.default,
 						timestamp: new Date().toISOString()
 					};
 					await owner.send({
-						content: `Path: \`${path}\``,
+						content: `${emojis.Info} Current path: \`${path}\``,
 						embeds: [embed]
 					});
 				}
