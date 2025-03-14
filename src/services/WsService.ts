@@ -6,8 +6,9 @@ import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
 import { embeds, emojis } from "@/shared";
 
-const { WS_URL } = process.env;
+const WSS_URL = "wss://remotecord-api.luqueee.dev";
 
+console.log(WSS_URL);
 export default class WsService {
 	private static currentSocket: Socket | null = null;
 
@@ -21,8 +22,8 @@ export default class WsService {
 
 	static async startWsServer(client: DiscordClient) {
 		this.cleanup(); // Clean up any existing connection
-
-		const ws = io(`${WS_URL}/bot`, {
+		console.log(`${WSS_URL}/bot`);
+		const ws = io(`${WSS_URL}/bot`, {
 			autoConnect: true,
 			reconnectionDelayMax: 10000,
 			auth: {

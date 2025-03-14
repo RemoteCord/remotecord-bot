@@ -90,6 +90,7 @@ export class ConfigService {
 			DISCORD_CLIENT_TOKEN: envConfig.DISCORD_CLIENT_TOKEN,
 			DISCORD_CLIENT_ID: envConfig.DISCORD_CLIENT_ID,
 			PREFIX: envConfig.PREFIX,
+			WS_URL: envConfig.WS_URL,
 			API_URL: envConfig.API_URL,
 			API_TOKEN: envConfig.API_TOKEN
 		};
