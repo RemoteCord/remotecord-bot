@@ -6,10 +6,10 @@ import { SlashCommandBuilder } from "discord.js";
 export default class extends Command {
 	constructor() {
 		super({
-			name: "cmd",
-			description: "Execute a command on the client.",
+			name: "disconnect",
+			description: "Disconnect from the current client.",
 			category: "clients",
-			aliases: ["command, cli"],
+			aliases: ["stop", "disconnect-client"],
 			interaction: true,
 			userPermissions: [],
 			botPermissions: [],
@@ -17,20 +17,16 @@ export default class extends Command {
 			premium: false,
 			enabled: true,
 			slash: new SlashCommandBuilder()
-				.setName("cmd")
-				.setDescription("Execute a command on the client.")
-				.addStringOption((option) =>
-					option.setName("command").setDescription("Command to execute").setRequired(true)
-				)
+				.setName("disconnect")
+				.setDescription("Disconnect from the current client.")
 		});
 	}
 
 	// Show embed of all clients and attach dropdown to select client
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
-		await handler.reply({
-			content: `Running command...`,
-
-			ephemeral: true
-		});
+		// await handler.reply({
+		// 	content: `Adding client...`,
+		// 	ephemeral: true
+		// });
 	}
 }

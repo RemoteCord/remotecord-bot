@@ -1,7 +1,9 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import HttpClient from "@/clients/HttpClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
+import { embeds } from "@/shared";
 import { Command } from "@/structures/Command";
+import { colorNames } from "chalk";
 import { SlashCommandBuilder } from "discord.js";
 
 export default class extends Command {
@@ -39,17 +41,19 @@ export default class extends Command {
 
 		const embedClients = {
 			title: "Clients",
-			description: "All clients",
+			description: "List of your friended clients:",
 			fields: [
 				{
 					name: "Clients",
-					value: clients.map((client) => `${client.clientid} - ${client.isactive}`).join("\n")
+					value: clients
+						.map((client) => `* ${client.clientid} - Online? ${client.isactive}`)
+						.join("\n")
 				}
-			]
+			],
+			color: embeds.Colors.default
 		};
 
 		await handler.reply({
-			content: `All clients`,
 			embeds: [embedClients]
 		});
 

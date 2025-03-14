@@ -5,10 +5,11 @@ import { InteractionHandler } from "@/handlers/InteractionHandler";
 import { type Socket } from "socket.io-client";
 import HttpClient from "@/clients/HttpClient";
 import { Logger } from "@/shared/Logger";
+import { emojis } from "@/shared";
 // import { Logger } from "@/shared/Logger";
 // import { PermissionHandler } from "@/handlers/PermissionHandler";
 
-const GLOBAL_COMMANDS = ["connect", "clients", "add"]; // Commands that do not need a client connection
+const GLOBAL_COMMANDS = ["connect", "clients", "add", "activate"]; // Commands that do not need a client connection
 
 export default class extends DiscordEvent {
 	constructor() {
@@ -57,7 +58,7 @@ export default class extends DiscordEvent {
 
 				if (!activeclient && !GLOBAL_COMMANDS.includes(interaction.commandName)) {
 					await interaction.reply({
-						content: "You need to connect to a client first!"
+						content: `${emojis.Warning} You must be connected to a client before executing that command.`
 					});
 				} else {
 					await InteractionHandler.runChatCommand(client, interaction, ws);
@@ -73,7 +74,7 @@ export default class extends DiscordEvent {
 
 				if (interaction.isRepliable()) {
 					await interaction.reply({
-						content: `An error occurred while executing this command. Are you connected to a client?`,
+						content: `${emojis.Error} An error occurred while executing this command. Are you connected to a client?`,
 						ephemeral: true
 					});
 				}
@@ -82,7 +83,7 @@ export default class extends DiscordEvent {
 
 				if (interaction.isRepliable()) {
 					await interaction.reply({
-						content: `An error occurred while executing this command. Are you connected to a client?`,
+						content: `${emojis.Error} An error occurred while executing this command. Are you connected to a client?`,
 						ephemeral: true
 					});
 				}
