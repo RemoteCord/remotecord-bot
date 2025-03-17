@@ -6,7 +6,7 @@ import { type FileMulterWs, type Process } from "@/types/Ws";
 import { fromBytesToMB } from "@/utils";
 import { embeds, emojis } from "@/shared";
 
-const WSS_URL = "wss://remotecord-api.luqueee.dev";
+const WSS_URL = "wss://api2.luqueee.dev";
 
 console.log(WSS_URL);
 export default class WsService {
