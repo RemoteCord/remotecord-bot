@@ -401,6 +401,23 @@ export default class WsService {
 			Logger.info(data);
 		});
 
+		ws.on("message", async (data: { title: string; controllerid: string; message: string }) => {
+			const { controllerid, message, title } = data;
+
+			const owner = await client.users.fetch(controllerid);
+
+			const embed = {
+				title,
+				description: message,
+				color: embeds.Colors.default,
+				timestamp: new Date().toISOString()
+			};
+
+			await owner.send({ embeds: [embed] });
+
+			// Logger.info(`Received message from WebSocket server: ${message}`);
+		});
+
 		ws.on("close", () => {
 			Logger.warn("Disconnected from WebSocket server");
 		});

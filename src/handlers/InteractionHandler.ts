@@ -360,7 +360,7 @@ export class InteractionHandler {
 					console.log("Select client response", res);
 					if (res.status) {
 						void interaction.editReply({
-							content: `${emojis.Success} Connected to client ${clientSelection}`
+							content: `${emojis.Success} Sent connection request to: ${clientSelection}\n-# (Make sure to accept the connection request on the client side.)`
 						});
 					} else {
 						void interaction.editReply({
