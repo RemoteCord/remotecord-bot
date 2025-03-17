@@ -282,6 +282,12 @@ export class InteractionHandler {
 
 			// const relativeRoute = client.folderPath.split("")
 
+			const currentFolder = client.folderPath.get(controllerid);
+
+			if (currentFolder !== interaction.values[0]) {
+				client.relativeFolder.set(controllerid, "/");
+			}
+
 			if (movment === "back") {
 				const currentPath = client.relativeFolder.get(controllerid) ?? "/";
 				client.relativeFolder.set(controllerid, path.dirname(currentPath));
