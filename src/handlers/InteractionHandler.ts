@@ -136,6 +136,12 @@ export class InteractionHandler {
 
 			if (!folder) return;
 
+			const currentFolder = client.folderPath.get(controllerid);
+
+			if (currentFolder !== folder) {
+				client.relativeFolder.set(controllerid, "/");
+			}
+
 			Logger.info("Running explorer", interaction.commandName, folder, controllerid);
 			const res = await HttpClient.axios
 				.post<{
@@ -281,12 +287,6 @@ export class InteractionHandler {
 			const movment = interaction.values[0];
 
 			// const relativeRoute = client.folderPath.split("")
-
-			const currentFolder = client.folderPath.get(controllerid);
-
-			if (currentFolder !== interaction.values[0]) {
-				client.relativeFolder.set(controllerid, "/");
-			}
 
 			if (movment === "back") {
 				const currentPath = client.relativeFolder.get(controllerid) ?? "/";
