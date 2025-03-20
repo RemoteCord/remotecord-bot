@@ -183,7 +183,7 @@ export class InteractionHandler {
 			const controllerid = interaction.user.id;
 			Logger.info("Running add", controllerid);
 
-			const clientid = interaction.options.getString("add");
+			const clientid = interaction.options.getString("id");
 
 			await interaction.reply({
 				content: `${emojis.Loading} Adding client ${clientid}...`
@@ -229,7 +229,7 @@ export class InteractionHandler {
 			const res = await HttpClient.axios.post<{ status: boolean; isAlreadyActivated: boolean }>({
 				url: `/controllers/${controllerid}/activate`,
 				data: {
-					controllerid
+					picture: interaction.user.avatarURL()
 				}
 			});
 
@@ -268,7 +268,7 @@ export class InteractionHandler {
 
 			if (res.status) {
 				await interaction.editReply({
-					content: `${emojis.Success} Disconnected successfully.`
+					content: `${emojis.Success} Sent disconnect request.`
 				});
 			} else {
 				await interaction.editReply({

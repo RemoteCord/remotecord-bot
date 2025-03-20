@@ -1,6 +1,7 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import HttpClient from "@/clients/HttpClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
+import { embeds, emojis } from "@/shared";
 import { Command } from "@/structures/Command";
 import {
 	ActionRowBuilder,
@@ -36,6 +37,8 @@ export default class extends Command {
 			clients: Array<{
 				clientid: string;
 				isactive: boolean;
+				isconnected: boolean;
+				alias: string;
 			}>;
 		}>({
 			url: `/controllers/${ownerid}/friends`
@@ -48,16 +51,29 @@ export default class extends Command {
 		// Create embed & show
 		const embedClients = {
 			title: "Clients",
-			description: "List of friended clients:",
+			description: "List of your friended clients:",
 			fields: [
 				{
 					name: "Clients",
 					value: clients
-						.filter((client) => client.isactive)
-						.map((client) => client.clientid)
+						.map((client) => {
+							let emoji;
+							if (client.isactive) {
+								if (client.isconnected) {
+									emoji = emojis.Dnd;
+								} else {
+									emoji = emojis.Online;
+								}
+							} else {
+								emoji = emojis.Offline;
+							}
+
+							return `* ${emoji} ${client.alias} *(${client.clientid})*`;
+						})
 						.join("\n")
 				}
-			]
+			],
+			color: embeds.Colors.default
 		};
 
 		// await handler.reply({
@@ -66,12 +82,24 @@ export default class extends Command {
 
 		const components = [];
 
+		const filteredClients = clients.filter((client) => !client.isconnected);
+
+		if (filteredClients.length === 0) {
+			await handler.reply({
+				content: `${emojis.Warning} All clients are already in use.`,
+				embeds: [embedClients]
+			});
+			return;
+		}
+
 		const selectionClient = new StringSelectMenuBuilder()
 			.setCustomId("client-select-menu")
 			.setPlaceholder("Select a client")
 			.addOptions(
-				clients.map((client) =>
-					new StringSelectMenuOptionBuilder().setLabel(client.clientid).setValue(client.clientid)
+				filteredClients.map((client) =>
+					new StringSelectMenuOptionBuilder()
+						.setLabel(`${client.alias} (${client.clientid})`)
+						.setValue(client.clientid)
 				)
 			);
 
@@ -82,7 +110,6 @@ export default class extends Command {
 		components.push(rowSelectionClient);
 
 		await handler.reply({
-			content: `All clients`,
 			embeds: [embedClients],
 			components
 		});

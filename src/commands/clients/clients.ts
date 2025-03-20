@@ -1,9 +1,8 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import HttpClient from "@/clients/HttpClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
-import { embeds } from "@/shared";
+import { embeds, emojis } from "@/shared";
 import { Command } from "@/structures/Command";
-import { colorNames } from "chalk";
 import { SlashCommandBuilder } from "discord.js";
 
 export default class extends Command {
@@ -32,6 +31,8 @@ export default class extends Command {
 			clients: Array<{
 				clientid: string;
 				isactive: boolean;
+				isconnected: boolean;
+				alias: string;
 			}>;
 		}>({
 			url: `/controllers/${ownerid}/friends`
@@ -46,7 +47,20 @@ export default class extends Command {
 				{
 					name: "Clients",
 					value: clients
-						.map((client) => `* ${client.clientid} - Online? ${client.isactive}`)
+						.map((client) => {
+							let emoji;
+							if (client.isactive) {
+								if (client.isconnected) {
+									emoji = emojis.Dnd;
+								} else {
+									emoji = emojis.Online;
+								}
+							} else {
+								emoji = emojis.Offline;
+							}
+
+							return `* ${emoji} ${client.alias} *(${client.clientid})*`;
+						})
 						.join("\n")
 				}
 			],

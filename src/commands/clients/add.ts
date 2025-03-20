@@ -20,7 +20,7 @@ export default class extends Command {
 				.setName("add")
 				.setDescription("Add a client as a friend.")
 				.addStringOption((option) =>
-					option.setName("add").setDescription("ID of the client to add").setRequired(true)
+					option.setName("id").setDescription("ID of the client to add").setRequired(true)
 				)
 		});
 	}
