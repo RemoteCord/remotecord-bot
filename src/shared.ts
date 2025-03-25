@@ -17,3 +17,5 @@ export const embeds = {
 		default: 0x6784ae
 	}
 };
+
+export const fallbackAvatar = "https://files.catbox.moe/g91v7i.webp";

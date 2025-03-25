@@ -17,7 +17,7 @@ import { type Socket } from "socket.io-client";
 import HttpClient from "@/clients/HttpClient";
 import { Logger } from "@/shared/Logger";
 import * as path from "path";
-import { emojis } from "@/shared";
+import { emojis, fallbackAvatar } from "@/shared";
 import { type GetFilesFolder } from "@/types/Ws";
 export class InteractionHandler {
 	static async runChatCommand(
@@ -194,7 +194,7 @@ export class InteractionHandler {
 				data: {
 					clientid,
 					username: interaction.user.username,
-					avatar: interaction.user.avatarURL()
+					avatar: interaction.user.avatarURL() ?? fallbackAvatar
 				}
 			});
 
@@ -226,10 +226,13 @@ export class InteractionHandler {
 				content: `${emojis.Loading} Activating your account...`
 			});
 
+			console.log("Activating account", interaction.user);
+
 			const res = await HttpClient.axios.post<{ status: boolean; isAlreadyActivated: boolean }>({
 				url: `/controllers/${controllerid}/activate`,
 				data: {
-					picture: interaction.user.avatarURL()
+					picture: interaction.user.avatarURL() ?? fallbackAvatar,
+					name: interaction.user.globalName
 				}
 			});
 
@@ -359,7 +362,7 @@ export class InteractionHandler {
 					data: {
 						clientid: clientSelection,
 						username: interaction.user.username,
-						avatar: interaction.user.avatarURL()
+						avatar: interaction.user.avatarURL() ?? fallbackAvatar
 					}
 				})
 				.then((res) => {

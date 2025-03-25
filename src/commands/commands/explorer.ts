@@ -71,7 +71,7 @@ export default class extends Command {
 
 				client.folderPath.set(controllerid, folder);
 
-				console.log("folder", folder, relativepath, JSON.stringify(files));
+				console.log("folder", folder, relativepath, files);
 
 				// client.relativeFolder = path.join(client.relativeFolder, relativepath);
 
