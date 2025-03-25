@@ -19,6 +19,7 @@ import { Logger } from "@/shared/Logger";
 import * as path from "path";
 import { emojis, fallbackAvatar } from "@/shared";
 import { type GetFilesFolder } from "@/types/Ws";
+import { stat } from "fs";
 export class InteractionHandler {
 	static async runChatCommand(
 		client: DiscordClient,
@@ -143,9 +144,8 @@ export class InteractionHandler {
 			}
 
 			Logger.info("Running explorer", interaction.commandName, folder, controllerid);
-			const res = await HttpClient.axios
+			await HttpClient.axios
 				.post<{
-					error: string;
 					message: string;
 				}>({
 					url: `/controllers/${controllerid}/explorer`,
@@ -154,19 +154,26 @@ export class InteractionHandler {
 						relativepath: "/"
 					}
 				})
-				.then((res) => {
+				.then(async (res) => {
 					console.log("Explorer response", res);
-					return res;
-				});
+					await command.run(client, handler, ws, interaction);
+				})
+				.catch(async (err: unknown) => {
+					const adapterError = (err as any).request.data as { error: string; status: string };
+					console.log("Explorer error", adapterError, err);
+					if (adapterError.status === "401") {
+						await interaction.reply({
+							content: `${emojis.Error} You are not authorized to run this command`,
+							ephemeral: true
+						});
+						return;
+					}
 
-			if (res.error) {
-				await interaction.reply({
-					content: res.error,
-					ephemeral: true
+					await interaction.reply({
+						content: `${emojis.Error} Something went wrong!`,
+						ephemeral: true
+					});
 				});
-			} else {
-				await command.run(client, handler, ws, interaction);
-			}
 		} else {
 			try {
 				await command.run(client, handler);
