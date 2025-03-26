@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import type { AxiosError } from "axios";
 
 interface FetchOptions {
 	url: string;
@@ -74,6 +75,7 @@ class AxiosClient {
 
 		const { url } = config;
 
+		// @ts-ignore aaa
 		return axios<ResponseJSON>({
 			...config,
 			headers,

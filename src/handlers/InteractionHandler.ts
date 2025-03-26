@@ -19,7 +19,7 @@ import { Logger } from "@/shared/Logger";
 import * as path from "path";
 import { emojis, fallbackAvatar } from "@/shared";
 import { type GetFilesFolder } from "@/types/Ws";
-import { stat } from "fs";
+import type { AxiosError } from "axios";
 export class InteractionHandler {
 	static async runChatCommand(
 		client: DiscordClient,
@@ -154,14 +154,14 @@ export class InteractionHandler {
 						relativepath: "/"
 					}
 				})
-				.then(async (res) => {
-					console.log("Explorer response", res);
+				.then(async () => {
+					// console.log("Explorer response", res);
 					await command.run(client, handler, ws, interaction);
 				})
 				.catch(async (err: unknown) => {
-					const adapterError = (err as any).request.data as { error: string; status: string };
-					console.log("Explorer error", adapterError, err);
-					if (adapterError.status === "401") {
+					const adapterError = (err as AxiosError).response?.data;
+					// console.log("Explorer error", adapterError);
+					if (adapterError.statusCode === 401) {
 						await interaction.reply({
 							content: `${emojis.Error} You are not authorized to run this command`,
 							ephemeral: true
