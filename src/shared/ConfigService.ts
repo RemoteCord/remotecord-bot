@@ -2,7 +2,7 @@ import yaml from "js-yaml";
 import { readFileSync } from "node:fs";
 import { Logger } from "./Logger";
 import { config } from "dotenv";
-import type { Config, EnvConfig, YamlConfig, ConfigColors } from "@/types/Config";
+import type { Config, EnvConfig, YamlConfig, ConfigColors } from "@/types/config.types";
 
 config();
 

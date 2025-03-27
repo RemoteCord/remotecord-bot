@@ -1,1 +1,1 @@
-export { default as WsService } from "./WsService";
+export { default as WsService } from "./ws/WsService";

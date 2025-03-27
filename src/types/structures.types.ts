@@ -5,7 +5,7 @@ import type {
 	SlashCommandBuilder,
 	SlashCommandOptionsOnlyBuilder
 } from "discord.js";
-import type { CustomPermissions } from "./Permissions";
+import type { CustomPermissions } from "./permissions.types";
 import { type Socket } from "socket.io-client";
 
 export interface DiscordEventProps {

@@ -3,7 +3,7 @@ import {
 	type CheckPermissionsProps,
 	CustomPermissions,
 	type PermissionHandlerOptions
-} from "@/types/Permissions";
+} from "@/types/permissions.types";
 import {
 	PermissionFlagsBits,
 	type GuildChannel,

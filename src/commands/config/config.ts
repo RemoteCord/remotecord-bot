@@ -1,7 +1,7 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
 import { Command } from "@/structures/Command";
-import { CustomPermissions } from "@/types/Permissions";
+import { CustomPermissions } from "@/types/permissions.types";
 import {
 	ActionRowBuilder,
 	SlashCommandBuilder,

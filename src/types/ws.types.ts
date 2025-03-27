@@ -15,13 +15,6 @@ export interface DirEntry {
 	size: number;
 }
 
-export interface GetFilesFolder {
-	controllerid: string;
-	files: DirEntry[];
-	folder: string;
-	relativepath: string;
-}
-
 export interface FileRequest {
 	buffer: ArrayBuffer;
 	metadata: {

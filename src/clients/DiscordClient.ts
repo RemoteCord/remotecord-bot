@@ -3,7 +3,7 @@ import { EventRegister } from "@/registers/EventRegister";
 import { WsService } from "@/services";
 import { Logger } from "@/shared/Logger";
 import type { Command } from "@/structures/Command";
-import type { Config } from "@/types/Config";
+import type { Config } from "@/types/config.types";
 // import { ClusterClient, getInfo } from "discord-hybrid-sharding";
 import { AllowedMentionsTypes, Client, Collection, GatewayIntentBits, Partials } from "discord.js";
 

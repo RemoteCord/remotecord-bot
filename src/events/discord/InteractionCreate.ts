@@ -38,7 +38,7 @@ export default class extends DiscordEvent {
 			}
 
 			if (interaction.isButton()) {
-				await InteractionHandler.runButton(client, interaction);
+				await InteractionHandler.runButton(client, interaction, ws);
 			}
 
 			if (interaction.isModalSubmit()) {
@@ -66,7 +66,7 @@ export default class extends DiscordEvent {
 			}
 
 			if (interaction.isStringSelectMenu()) {
-				await InteractionHandler.runStringSelectMenu(client, interaction);
+				await InteractionHandler.runStringSelectMenu(client, interaction, ws);
 			}
 		} catch (err) {
 			if (err instanceof Error) {

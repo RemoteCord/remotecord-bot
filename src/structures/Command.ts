@@ -1,7 +1,7 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
-import type { CustomPermissions } from "@/types/Permissions";
-import type { CommandProps } from "@/types/Structures";
+import type { CustomPermissions } from "@/types/permissions.types";
+import type { CommandProps } from "@/types/structures.types";
 import type {
 	AutocompleteInteraction,
 	PermissionResolvable,

@@ -1,5 +1,5 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
-import type { EventProps } from "@/types/Structures";
+import type { EventProps } from "@/types/structures.types";
 import { type Socket } from "socket.io-client";
 
 export class DiscordEvent {
