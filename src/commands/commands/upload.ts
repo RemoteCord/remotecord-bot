@@ -1,7 +1,9 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import type { CommandHandler } from "@/handlers/CommandHandler";
+import { emojis } from "@/shared";
 import { Command } from "@/structures/Command";
-import { SlashCommandBuilder } from "discord.js";
+import { type ChatInputCommandInteraction, Interaction, SlashCommandBuilder } from "discord.js";
+import { type Socket } from "socket.io-client";
 
 export default class extends Command {
 	constructor() {
@@ -25,42 +27,11 @@ export default class extends Command {
 		});
 	}
 
-	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
-		await handler.reply({
-			content: `File send to client!`,
-			ephemeral: true
-		});
-	}
+	async run(
+		client: DiscordClient,
+		handler: CommandHandler,
+		ws: Socket,
+		interaction: ChatInputCommandInteraction,
+		...args: any[]
+	): Promise<void> {}
 }
-
-// console.log("running ban command");
-
-// await handler.send({
-// 	content: `Are you sure you want to ban ${handler.user.tag}?`
-// });
-
-// const confirm = new ButtonBuilder()
-// 	.setCustomId("confirm")
-// 	.setLabel("Confirm Ban")
-// 	.setStyle(ButtonStyle.Danger);
-// const cancel = new ButtonBuilder()
-// 	.setCustomId("cancel")
-// 	.setLabel("Cancel")
-// 	.setStyle(ButtonStyle.Secondary);
-
-// const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancel, confirm);
-
-// // const embed = new EmbedBuilder()
-// // 	.setAuthor({ name: "| Añadida a la cola", iconURL: handler.user.displayAvatarURL() })
-// // 	.setDescription(
-// // 		result.type === "PLAYLIST"
-// // 			? `Añadidas ${result.tracks.length} de **[${result.playlistName}](${query})**`
-// // 			: `Canción: **[${result.tracks[0].title} - ${result.tracks[0].author}](${result.tracks[0].uri})**`
-// // 	)
-// // 	.setColor(0x23272a);
-
-// await handler.reply({
-// 	content: `Are you sure you want to ban ${handler.user.tag}?`,
-// 	components: [row],
-// 	ephemeral: true
-// });

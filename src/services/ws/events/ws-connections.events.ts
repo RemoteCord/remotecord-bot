@@ -7,13 +7,15 @@ export class WsConnectionsEvents {
 
 	connection = async (data: WsConnection) => {
 		try {
-			const { controllerid, clientid, alias } = data;
+			const { controllerid, clientid, alias, messageid } = data;
 
+			console.log("Connection data", data);
 			const owner = await this.client.users.fetch(controllerid);
+			const dmChannel = await owner.createDM();
+
 			if (owner) {
 				const embed = {
 					title: "Client Connected",
-					description: `A client has successfully connected `,
 					fields: [
 						{
 							name: "Alias",
@@ -30,8 +32,20 @@ export class WsConnectionsEvents {
 					timestamp: new Date().toISOString()
 				};
 				Logger.info(`Client with ID: ${clientid} connected`);
+				await dmChannel.messages.fetch(messageid).then(async (message) => {
+					if (!message) return console.log("No message found.");
+					// await message.delete();
+					// setTimeout(() => {
+					// 	void message.delete();
+					// }, 1000);
+					await message.edit({
+						embeds: [embed],
+						content: "",
+						components: []
+					});
+				});
 
-				await owner.send({ embeds: [embed] });
+				// await dmChannel.send({ embeds: [embed] });
 			} else {
 				Logger.warn(`Owner not found for ID: ${controllerid}`);
 			}

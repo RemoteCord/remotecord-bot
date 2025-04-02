@@ -53,7 +53,7 @@ export class WsFilesEvents {
 
 	reciveFile = async (data: WsDownloadFile) => {
 		const { controllerid, file, fileMetadata } = data;
-
+		console.log("File data", data);
 		const owner = await this.client.users.fetch(controllerid);
 
 		try {

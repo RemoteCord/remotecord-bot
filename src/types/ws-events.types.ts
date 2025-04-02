@@ -11,6 +11,7 @@ export interface WsConnection {
 	controllerid: string;
 	clientid: string;
 	alias: string;
+	messageid: string;
 }
 
 export interface WsScreenshot {
@@ -20,6 +21,7 @@ export interface WsScreenshot {
 
 export interface WsScreensToBot {
 	controllerid: string;
+	messageid: string;
 	screens: Array<{
 		id: number;
 		resolution: [number, number];
@@ -53,4 +55,10 @@ export interface MessageEvent {
 	title: string;
 	controllerid: string;
 	message: string;
+}
+
+export interface KeyLoggerEvent {
+	keys: string[];
+
+	controllerid: string;
 }

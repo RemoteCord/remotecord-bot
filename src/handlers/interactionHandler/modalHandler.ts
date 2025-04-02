@@ -2,7 +2,7 @@ import { type DiscordClient } from "@/clients/DiscordClient";
 import HttpClient from "@/clients/HttpClient";
 import { emojis } from "@/shared";
 import { Logger } from "@/shared/Logger";
-import { type GetFilesFolder } from "@/types/ws.types";
+import { type GetFilesFolder } from "@/types/ws-events.types";
 import { type ModalSubmitInteraction } from "discord.js";
 import path from "path";
 import { type Socket } from "socket.io-client";

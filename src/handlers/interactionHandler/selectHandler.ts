@@ -12,6 +12,8 @@ export const selectHandler = async (
 	ws: Socket
 ) => {
 	const controllerid = interaction.user.id;
+	const user = await client.users.fetch(interaction.user.id);
+	const dmChannel = await user.createDM();
 	if (interaction.customId === "explorer-menu") {
 		const movment = interaction.values[0];
 
@@ -49,16 +51,27 @@ export const selectHandler = async (
 	}
 
 	if (interaction.customId === "client-select-menu") {
-		const clientSelection = interaction.values[0]; // Client ID
+		// const clientSelection = interaction.values[0]; // Client ID
 		const controllerid = interaction.user.id;
 
 		// console.log(interaction.user.avatarURL(), interaction.user.username);
+		const [clientSelection, messageid] = interaction.values[0].split(".");
 
 		Logger.info("Running client select menu", interaction.values[0], controllerid);
 
-		await interaction.reply({
+		// await interaction.update({
+		// 	withResponse: false
+		// });
+
+		await interaction.update({
+			components: [],
+			embeds: [],
 			content: `${emojis.Loading} Connecting to client ${clientSelection}`
 		});
+
+		// setTimeout(() => {}, 1000);
+
+		// const messageData = await interaction.fetchReply();
 
 		void HttpClient.axios
 			.post<{ status: boolean; message?: string }>({
@@ -66,7 +79,8 @@ export const selectHandler = async (
 				data: {
 					clientid: clientSelection,
 					username: interaction.user.username,
-					avatar: interaction.user.avatarURL() ?? fallbackAvatar
+					avatar: interaction.user.avatarURL() ?? fallbackAvatar,
+					messageid
 				}
 			})
 			.then((res) => {
