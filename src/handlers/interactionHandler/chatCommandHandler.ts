@@ -15,6 +15,8 @@ import { type Socket } from "socket.io-client";
 import { CommandHandler } from "../CommandHandler";
 import { PermissionHandler } from "../PermissionHandler";
 import { ChatWsServiceHandlers } from "@/services/ws/WsServiceHandlers";
+import { EndpointsInteractions } from "@/services/interactions/endpoints-interactions";
+import { EmbedsInteractions } from "@/services/interactions/embeds-interactions";
 
 export const runChatCommandHandler = async (
 	client: DiscordClient,
@@ -22,11 +24,14 @@ export const runChatCommandHandler = async (
 	ws: Socket
 ) => {
 	try {
+		const controllerid = interaction.user.id;
+
 		const wsServiceHandlers = new ChatWsServiceHandlers(client, ws, interaction);
+		const endpointsInteractions = new EndpointsInteractions(controllerid)
+		const embedsInteractions = new EmbedsInteractions(controllerid, endpointsInteractions)
 
 		const user = await client.users.fetch(interaction.user.id);
 		const dmChannel = await user.createDM();
-		const controllerid = interaction.user.id;
 
 		const command = client.commands.get(interaction.commandName);
 
@@ -55,6 +60,28 @@ export const runChatCommandHandler = async (
 			color: client.config.colors.burple,
 			prefix: client.config.bot.PREFIX
 		});
+
+		if (interaction.commandName === "camera") {
+			await interaction.reply({
+				content: `${emojis.Loading} Getting camera...`
+			});
+
+			const messageData = await interaction.fetchReply();
+			// console.log("Message id", message);
+			const res = await endpointsInteractions.getCameras({
+				messageid: messageData.id
+			})
+			console.log("Camera response", res);
+			if (res.status) {
+				await interaction.editReply({
+					content: `${emojis.Loading} Receiving cameras`
+				});
+			} else {
+				await interaction.reply({
+					content: `${emojis.Error} An error occurred while getting camera.`
+				});
+			}
+		}
 
 		if (interaction.commandName === "upload") {
 			const file = interaction.options.getAttachment("file");
@@ -261,24 +288,22 @@ export const runChatCommandHandler = async (
 			}
 		}
 
-		if (interaction.commandName === "add") {
+		if (interaction.commandName === "add-client") {
 			const controllerid = interaction.user.id;
 			Logger.info("Running add", controllerid);
 
-			const clientid = interaction.options.getString("id");
+			const clientid = interaction.options.getString("id")!;
+
 
 			await interaction.reply({
 				content: `${emojis.Loading} Adding client ${clientid}...`
 			});
 
-			const res = await HttpClient.axios.post<{ status: boolean; isAlreadyAdded: boolean }>({
-				url: `/controllers/${controllerid}/add-friend`,
-				data: {
-					clientid,
-					username: interaction.user.username,
-					avatar: interaction.user.avatarURL() ?? fallbackAvatar
-				}
-			});
+			const res = await endpointsInteractions.addFriend({
+				clientid,
+				name: interaction.user.username,
+				picture: interaction.user.avatarURL() ?? fallbackAvatar
+			})
 
 			if (res.status) {
 				await interaction.editReply({
@@ -298,6 +323,60 @@ export const runChatCommandHandler = async (
 			}
 		}
 
+		if (interaction.commandName === "delete-client") {
+			const controllerid = interaction.user.id;
+
+			await interaction.reply({
+				content: `${emojis.Loading} Getting clients...`
+			});
+
+			Logger.info("Running delete", controllerid);
+
+
+			const { embedClients, clients } = await embedsInteractions.generateFriendsEmbed({
+				title: "Clients",
+				description: "List of your friended clients:",
+				options: {
+					showConnectedEmoji: false
+				}
+			})
+
+			const components = [];
+
+			const filteredClients = clients.filter((client) => !client.isconnected);
+
+			if (filteredClients.length === 0) {
+				await interaction.editReply({
+					content: `${emojis.Warning} You don't have friends.`,
+
+				});
+				return;
+			}
+
+			const selectionClient = new StringSelectMenuBuilder()
+				.setCustomId("client-delete-menu")
+				.setPlaceholder("Select a client")
+				.addOptions(
+					filteredClients.map((client) =>
+						new StringSelectMenuOptionBuilder()
+							.setLabel(`${client.alias} (${client.clientid})`)
+							.setValue(`${client.clientid}.${client.alias}`)
+					)
+				);
+
+			components.push(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+				selectionClient
+			));
+
+
+			await interaction.editReply({
+				content: "",
+				embeds: [embedClients],
+				components
+			});
+
+		}
+
 		// ws.once("addFriend", async (data: {clientid:string, controllerid:string, accept:boolean}) => {
 
 		if (interaction.commandName === "activate") {
@@ -310,13 +389,13 @@ export const runChatCommandHandler = async (
 
 			console.log("Activating account", interaction.user);
 
-			const res = await HttpClient.axios.post<{ status: boolean; isAlreadyActivated: boolean }>({
-				url: `/controllers/${controllerid}/activate`,
-				data: {
-					picture: interaction.user.avatarURL() ?? fallbackAvatar,
-					name: interaction.user.globalName
-				}
-			});
+
+			const res = await endpointsInteractions.activateController({
+				picture: interaction.user.avatarURL() ?? fallbackAvatar,
+				name: interaction.user.username
+			})
+
+
 
 			// Logger.info("Activate response", JSON.stringify(res));
 			if (res.status) {
@@ -349,48 +428,16 @@ export const runChatCommandHandler = async (
 
 			const messageid = (await interaction.fetchReply()).id;
 
-			const { clients } = await HttpClient.axios.get<{
-				clients: Array<{
-					clientid: string;
-					isactive: boolean;
-					isconnected: boolean;
-					alias: string;
-				}>;
-			}>({
-				url: `/controllers/${controllerid}/friends`
-			});
 
 			// console.log(clients);
 
 			// const owner = await client.users.fetch(ownerid);
 
 			// Create embed & show
-			const embedClients = {
+			const { embedClients, clients } = await embedsInteractions.generateFriendsEmbed({
 				title: "Clients",
 				description: "List of your friended clients:",
-				fields: [
-					{
-						name: "Clients",
-						value: clients
-							.map((client) => {
-								let emoji;
-								if (client.isactive) {
-									if (client.isconnected) {
-										emoji = emojis.Dnd;
-									} else {
-										emoji = emojis.Online;
-									}
-								} else {
-									emoji = emojis.Offline;
-								}
-
-								return `* ${emoji} ${client.alias} *(${client.clientid})*`;
-							})
-							.join("\n")
-					}
-				],
-				color: embeds.Colors.default
-			};
+			})
 
 			// await handler.reply({
 
@@ -439,12 +486,7 @@ export const runChatCommandHandler = async (
 				content: `${emojis.Loading} Disconnecting...`
 			});
 
-			const res = await HttpClient.axios.post<{ status: boolean }>({
-				url: `/controllers/${controllerid}/disconnect-client`,
-				data: {
-					controllerid
-				}
-			});
+			const res = await endpointsInteractions.disconnectClient()
 
 			if (res.status) {
 				await interaction.editReply({

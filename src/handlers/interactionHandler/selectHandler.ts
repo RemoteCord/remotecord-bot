@@ -96,4 +96,49 @@ export const selectHandler = async (
 				}
 			});
 	}
+
+	if (interaction.customId === "client-delete-menu") {
+		const controllerid = interaction.user.id;
+
+		// console.log(interaction.user.avatarURL(), interaction.user.username);
+		const [clientSelection, clientAlias] = interaction.values[0].split("."); // Client ID
+
+		Logger.info("Running client delete friend select menu", interaction.values[0], controllerid);
+
+		// await interaction.update({
+		// 	withResponse: false
+		// });
+
+		await interaction.update({
+			components: [],
+			embeds: [],
+			content: `${emojis.Loading} Deleting friend ${clientSelection} ${clientAlias}`
+		});
+
+		void HttpClient.axios
+			.post<{ status: boolean; message?: string }>({
+				url: `/controllers/${controllerid}/delete-friend`,
+				data: {
+					clientid: clientSelection,
+				}
+			})
+			.then((res) => {
+				console.log("Select client response", res);
+				if (res.status) {
+					void interaction.editReply({
+						content: `${emojis.Success} Friend ${clientAlias} deleted successfully.`
+					});
+				} else {
+					void interaction.editReply({
+						content: `${emojis.Error} ${res.message}`
+					});
+				}
+			});
+
+		// setTimeout(() => {}, 1000);
+
+		// const messageData = await interaction.fetchReply();
+
+
+	}
 };

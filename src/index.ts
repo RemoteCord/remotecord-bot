@@ -1,6 +1,11 @@
 import { DiscordClient } from "./clients/DiscordClient";
 import { ConfigService } from "@/shared/ConfigService";
 import { type Config } from "./types/config.types";
+import * as Sentry from "@sentry/node";
+
+// Sentry.init({
+// 	dsn: "http://4c52f7ce1a82424d9753673df394f5b4@192.168.192.84:8000/2"
+// });
 
 const configData = new ConfigService();
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions

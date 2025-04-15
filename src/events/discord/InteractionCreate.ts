@@ -1,15 +1,17 @@
 import type { DiscordClient } from "@/clients/DiscordClient";
 import { DiscordEvent } from "@/structures/DiscordEvent";
-import { Events, type Interaction } from "discord.js";
+import { ChannelType, Events, type Interaction } from "discord.js";
 import { InteractionHandler } from "@/handlers/InteractionHandler";
 import { type Socket } from "socket.io-client";
 import HttpClient from "@/clients/HttpClient";
-import { Logger } from "@/shared/Logger";
 import { emojis } from "@/shared";
 // import { Logger } from "@/shared/Logger";
 // import { PermissionHandler } from "@/handlers/PermissionHandler";
 
-const GLOBAL_COMMANDS = ["connect", "clients", "add", "activate"]; // Commands that do not need a client connection
+export const GLOBAL_COMMANDS = ["connect", "clients", "add-client", "delete-client", "activate"]; // Commands that do not need a client connection
+export const ALLOWED_COMMANDS_OUTSIDE_DM = ["activate"]
+
+
 const verifyClientConnection = async (ownerid: string, interaction: Interaction) => {
 	const { activeclient } = await HttpClient.axios
 		.get<{
@@ -31,6 +33,26 @@ const verifyClientConnection = async (ownerid: string, interaction: Interaction)
 	// return activeclient;
 };
 
+export const verifyInteractionIsAllowed = async (interaction: Interaction) => {
+	if (interaction.channel?.type !== ChannelType.DM) {
+
+		if (interaction.isChatInputCommand() && !ALLOWED_COMMANDS_OUTSIDE_DM.includes(interaction.commandName)) {
+
+			return true
+		}
+
+		if (interaction.isRepliable()) {
+			await interaction.reply({
+				content: `${emojis.Warning} This command can only be used in DMs.`,
+				flags: ["Ephemeral"]
+			});
+			return false;
+		}
+	}
+
+	return true;
+}
+
 export default class extends DiscordEvent {
 	constructor() {
 		super({
@@ -49,7 +71,8 @@ export default class extends DiscordEvent {
 				`Is button: ${interaction.isButton()}`,
 				`Is chat input command: ${interaction.isChatInputCommand()}`,
 				`Is string select menu: ${interaction.isStringSelectMenu()}`,
-				`Is modal: ${interaction.isModalSubmit()}`
+				`Is modal: ${interaction.isModalSubmit()}`,
+				`Is DM: ${interaction.channel?.type}`,
 				// ws
 			);
 
@@ -71,6 +94,8 @@ export default class extends DiscordEvent {
 
 			if (interaction.isChatInputCommand()) {
 				// const command = client.commands.get(interaction.commandName);
+
+				if (!(await verifyInteractionIsAllowed(interaction))) return;
 
 				if (!GLOBAL_COMMANDS.includes(interaction.commandName)) {
 					await verifyClientConnection(ownerid, interaction);

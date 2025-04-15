@@ -22,13 +22,13 @@ export const buttonHandler = async (
 	try {
 		const wsServiceHandler = new ButtonWsServiceHandlers(client, ws, interaction);
 
-		const { customId, data } = interaction.component as ButtonComponent;
 		const controllerid = interaction.user.id;
+		const { customId, data } = interaction.component as ButtonComponent;
 
 		const owner = await client.users.fetch(controllerid);
 		const dmChannel = await owner.createDM();
 
-		if (interaction.customId.includes("screen-")) {
+		if (interaction.customId.startsWith("screen-")) {
 			const [, screen, messageid] = interaction.customId.split("-");
 
 			Logger.info("Running screen button", screen, controllerid, messageid);
@@ -67,6 +67,32 @@ export const buttonHandler = async (
 				});
 
 			await wsServiceHandler.SendScreenshotToBot(startDate);
+		}
+
+		if (interaction.customId.startsWith("webcam-")) {
+			const [, webcamId, messageid] = interaction.customId.split("-");
+
+
+			await HttpClient.axios
+				.get({
+					url: `/controllers/${controllerid}/camera-screenshot?webcamId=${webcamId}`,
+
+				})
+				.catch(async (err: unknown) => {
+					const adapterError = (err as AxiosError).response?.data;
+					Logger.error("Error sending screenshot webcam", JSON.stringify(adapterError));
+					await interaction.update({
+						content: `${emojis.Error} Error sending webcam screenshot`
+					});
+
+					if (adapterError.status === 409) {
+						await interaction.update({
+							content: `${emojis.Error} You are not authorized to run this command`
+						});
+					}
+				});
+
+
 		}
 
 		if (interaction.customId === "explorer-files-download") {

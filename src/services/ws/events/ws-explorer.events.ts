@@ -24,7 +24,7 @@ export class WsExplorerEvents {
 
 			this.client.folderPath.set(controllerid, folder);
 
-			console.log("folder", folder, relativepath, files);
+			console.log("folder", relativepath);
 
 			// client.relativeFolder = path.join(client.relativeFolder, relativepath);
 
@@ -67,21 +67,33 @@ export class WsExplorerEvents {
 
 				const components = [];
 
+				// Limit folder options to 24 (1 for back + 24 folders = 25 total)
+				const limitedFoldersList = foldersList.slice(0, 24);
+
 				const selectFolders = new StringSelectMenuBuilder()
 					.setCustomId("explorer-menu")
 					.setPlaceholder("Move route!")
 					.addOptions([
 						new StringSelectMenuOptionBuilder().setLabel("back").setValue("back").setEmoji("⬅️"),
-						...foldersList.map((folder) =>
+						...limitedFoldersList.map((folder) =>
 							new StringSelectMenuOptionBuilder().setLabel(folder).setValue(folder)
 						)
 					]);
+
+				// If there are more folders than we can display, add a message
+				// if (foldersList.length > 24) {
+				// 	await owner.send({
+				// 		content: `⚠️ Showing only the first 24 folders. There are ${foldersList.length - 24} more folders.`
+				// 	});
+				// }
+
+				Logger.info(`Folders sent to 1: ${controllerid}`);
 				const rowFolder = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 					selectFolders
 				);
 
 				components.push(rowFolder);
-
+				Logger.info(`Folders sent to 2: ${controllerid}`);
 				if (filesList.length > 0) {
 					const downloadButton = new ButtonBuilder()
 						.setCustomId("explorer-files-download")

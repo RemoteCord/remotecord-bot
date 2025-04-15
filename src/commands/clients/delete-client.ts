@@ -6,10 +6,10 @@ import { SlashCommandBuilder } from "discord.js";
 export default class extends Command {
 	constructor() {
 		super({
-			name: "add",
-			description: "Add a client as a friend.",
+			name: "delete-client",
+			description: "Delete a client as a friend.",
 			category: "clients",
-			aliases: ["add, add-client"],
+			aliases: ["delete-client"],
 			interaction: true,
 			userPermissions: [],
 			botPermissions: [],
@@ -17,11 +17,9 @@ export default class extends Command {
 			premium: false,
 			enabled: true,
 			slash: new SlashCommandBuilder()
-				.setName("add")
-				.setDescription("Add a client as a friend.")
-				.addStringOption((option) =>
-					option.setName("id").setDescription("ID of the client to add").setRequired(true)
-				)
+				.setName("delete-client")
+				.setDescription("Delete a client as a friend.")
+
 		});
 	}
 

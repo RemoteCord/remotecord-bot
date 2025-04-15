@@ -1,5 +1,5 @@
-import axios from "axios";
-import type { AxiosError } from "axios";
+import axios, { type AxiosError } from "axios";
+
 
 interface FetchOptions {
 	url: string;
@@ -75,12 +75,13 @@ class AxiosClient {
 
 		const { url } = config;
 
-		// @ts-ignore aaa
+		// @ts-expect-error foowkfowf
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
 		return axios<ResponseJSON>({
 			...config,
 			headers,
 			url: `${API_URL}${url}`
-		}).then((response) => response.data);
+		}).then((response: { data: ResponseJSON }) => response.data);
 	}
 
 	async get<ResponseJSON>(config: Omit<AxiosOptions, "method">): Promise<ResponseJSON> {

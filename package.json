@@ -40,6 +40,8 @@
 		"typescript": "^5.5.3"
 	},
 	"dependencies": {
+		"@sentry/browser": "^9.11.0",
+		"@sentry/node": "^9.11.0",
 		"@types/multer": "^1.4.12",
 		"axios": "^1.7.3",
 		"chalk": "^5.3.0",
