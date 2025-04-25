@@ -8,7 +8,7 @@ import { emojis } from "@/shared";
 // import { Logger } from "@/shared/Logger";
 // import { PermissionHandler } from "@/handlers/PermissionHandler";
 
-export const GLOBAL_COMMANDS = ["connect", "clients", "add-client", "delete-client", "activate"]; // Commands that do not need a client connection
+export const GLOBAL_COMMANDS = ["connect", "clients", "add-client", "delete-client", "activate", "stats"]; // Commands that do not need a client connection
 export const ALLOWED_COMMANDS_OUTSIDE_DM = ["activate"]
 
 
@@ -63,69 +63,51 @@ export default class extends DiscordEvent {
 	}
 
 	run = async (client: DiscordClient, ws: Socket, interaction: Interaction) => {
-		try {
-			// const { client } = this;
-			console.log(
-				`Running InteractionCreate event: Interaction type: ${interaction.type}`,
-				`Is command: ${interaction.isCommand()}`,
-				`Is button: ${interaction.isButton()}`,
-				`Is chat input command: ${interaction.isChatInputCommand()}`,
-				`Is string select menu: ${interaction.isStringSelectMenu()}`,
-				`Is modal: ${interaction.isModalSubmit()}`,
-				`Is DM: ${interaction.channel?.type}`,
-				// ws
-			);
 
-			const ownerid = interaction.user.id;
+		// const { client } = this;
+		console.log(
+			`Running InteractionCreate event: Interaction type: ${interaction.type}`,
+			`Is command: ${interaction.isCommand()}`,
+			`Is button: ${interaction.isButton()}`,
+			`Is chat input command: ${interaction.isChatInputCommand()}`,
+			`Is string select menu: ${interaction.isStringSelectMenu()}`,
+			`Is modal: ${interaction.isModalSubmit()}`,
+			`Is DM: ${interaction.channel?.type}`,
+			// ws
+		);
 
-			if (interaction.isAutocomplete()) {
-				await InteractionHandler.runAutocomplete(client, interaction);
-			}
+		const ownerid = interaction.user.id;
 
-			if (interaction.isButton()) {
-				await verifyClientConnection(ownerid, interaction);
-
-				await InteractionHandler.runButton(client, interaction, ws);
-			}
-
-			if (interaction.isModalSubmit()) {
-				await InteractionHandler.runModal(client, interaction, ws);
-			}
-
-			if (interaction.isChatInputCommand()) {
-				// const command = client.commands.get(interaction.commandName);
-
-				if (!(await verifyInteractionIsAllowed(interaction))) return;
-
-				if (!GLOBAL_COMMANDS.includes(interaction.commandName)) {
-					await verifyClientConnection(ownerid, interaction);
-					// console.log(activeclient, interaction.commandName);
-				}
-
-				await InteractionHandler.runChatCommand(client, interaction, ws);
-			}
-
-			if (interaction.isStringSelectMenu()) {
-				await InteractionHandler.runStringSelectMenu(client, interaction, ws);
-			}
-		} catch (err) {
-			// if (err instanceof Error) {
-			// 	Logger.error(err.message);
-			// 	if (interaction.isRepliable()) {
-			// 		await interaction.reply({
-			// 			content: `${emojis.Error} An error occurred while executing this command. Are you connected to a client?`,
-			// 			ephemeral: true
-			// 		});
-			// 	}
-			// } else {
-			// 	Logger.error(String(err));
-			// 	if (interaction.isRepliable()) {
-			// 		await interaction.reply({
-			// 			content: `${emojis.Error} An error occurred while executing this command. Are you connected to a client?`,
-			// 			ephemeral: true
-			// 		});
-			// 	}
-			// }
+		if (interaction.isAutocomplete()) {
+			await InteractionHandler.runAutocomplete(client, interaction);
 		}
+
+		if (interaction.isButton()) {
+			await verifyClientConnection(ownerid, interaction);
+
+			await InteractionHandler.runButton(client, interaction, ws);
+		}
+
+		if (interaction.isModalSubmit()) {
+			await InteractionHandler.runModal(client, interaction, ws);
+		}
+
+		if (interaction.isChatInputCommand()) {
+			// const command = client.commands.get(interaction.commandName);
+
+			if (!(await verifyInteractionIsAllowed(interaction))) return;
+
+			if (!GLOBAL_COMMANDS.includes(interaction.commandName)) {
+				await verifyClientConnection(ownerid, interaction);
+				// console.log(activeclient, interaction.commandName);
+			}
+
+			await InteractionHandler.runChatCommand(client, interaction, ws);
+		}
+
+		if (interaction.isStringSelectMenu()) {
+			await InteractionHandler.runStringSelectMenu(client, interaction, ws);
+		}
+
 	};
 }

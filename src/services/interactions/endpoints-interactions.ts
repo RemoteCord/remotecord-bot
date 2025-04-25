@@ -6,6 +6,23 @@ export class EndpointsInteractions {
         private readonly controllerid: string,
     ) { }
 
+    async getStats() {
+        const stats = await HttpClient.axios.get<{
+            connections: number;
+            clients: number;
+            commands: number;
+            web_analytics: {
+                visitors: number;
+                views: number;
+                sessions: number;
+            };
+        }>({
+            url: `/controllers/stats`
+        });
+
+        return stats
+    }
+
     async getFriends() {
         const { clients } = await HttpClient.axios.get<{
             clients: Array<{
@@ -20,6 +37,17 @@ export class EndpointsInteractions {
 
 
         return clients
+    }
+
+    async getUploadLargeFileUrl() {
+        const res = await HttpClient.axios.post<string>({
+            url: `/controllers/${this.controllerid}/upload-large-file`,
+            data: {}
+        }).catch(() => (null));
+
+        console.log(res);
+
+        return res
     }
 
     async getCameras(data: {
