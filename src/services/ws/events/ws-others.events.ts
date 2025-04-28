@@ -186,6 +186,7 @@ export class WsOthersEvents {
 		const dmChannel = await owner.createDM();
 
 		const buttons = webcams.map((webcam, idx) => {
+			console.log(webcam);
 			const button = new ButtonBuilder()
 				.setCustomId(`webcam-${webcam.id}-${messageid}`)
 				.setLabel(webcam.name)
