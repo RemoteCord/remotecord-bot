@@ -34,7 +34,9 @@ export const buttonHandler = async (
 			Logger.info("Running screen button", screen, controllerid, messageid);
 
 			const startDate = new Date();
-			await interaction.update({ withResponse: false });
+			// await interaction.update({ withResponse: false });
+
+			await interaction.update({});
 
 			await dmChannel.messages.fetch(messageid).then(async (message) => {
 				if (!message) return console.log("No message found.");
@@ -72,11 +74,9 @@ export const buttonHandler = async (
 		if (interaction.customId.startsWith("webcam-")) {
 			const [, webcamId, messageid] = interaction.customId.split("-");
 
-
 			await HttpClient.axios
 				.get({
-					url: `/controllers/${controllerid}/camera-screenshot?webcamId=${webcamId}`,
-
+					url: `/controllers/${controllerid}/camera-screenshot?webcamId=${webcamId}`
 				})
 				.catch(async (err: unknown) => {
 					const adapterError = (err as AxiosError).response?.data;
@@ -91,8 +91,6 @@ export const buttonHandler = async (
 						});
 					}
 				});
-
-
 		}
 
 		if (interaction.customId === "explorer-files-download") {

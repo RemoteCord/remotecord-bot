@@ -27,11 +27,10 @@ export default class extends Command {
 	}
 
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
-		await handler.reply({
-			content: `Client selected!`,
-
-			ephemeral: true
-		});
+		// await handler.reply({
+		// 	content: `Client selected!`,
+		// 	ephemeral: true
+		// });
 	}
 }
 
