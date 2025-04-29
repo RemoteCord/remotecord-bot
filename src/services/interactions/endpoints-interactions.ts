@@ -9,8 +9,16 @@ export class EndpointsInteractions {
     async getStats() {
         const stats = await HttpClient.axios.get<{
             connections: number;
-            clients: number;
+            users: {
+                controllers: number,
+                clients: number;
+            };
             commands: number;
+            memory: {
+                used: number;
+                total: number;
+                free: number;
+            },
             web_analytics: {
                 visitors: number;
                 views: number;

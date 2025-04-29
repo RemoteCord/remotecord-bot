@@ -79,7 +79,7 @@ export const runChatCommandHandler = async (
 		});
 
 		const stats = await endpointsInteractions.getStats();
-		// console.log("Stats response", stats);
+		console.log("Stats response", stats);
 
 
 
@@ -88,14 +88,20 @@ export const runChatCommandHandler = async (
 			const embed = {
 				title: "Stats",
 				description: `
-				**Connections:** ${stats.connections}
-				**Clients:** ${stats.clients}
-				**Commands:** ${stats.commands}\n
+				**Connections:** ${stats.connections}\n
+				**Clients:** 
+				**Controllers:** ${stats.users.controllers}
+				**Clients:**${stats.users.clients}
+				**Total:**:${stats.users.clients + stats.users.controllers}\n
+				**Commands:** ${stats.commands}
 				**Web Analytics:**
 				**Visitors:** ${stats.web_analytics.visitors}
 				**Views:** ${stats.web_analytics.views}
-			    **Sessions:** ${stats.web_analytics.sessions}
-
+			    **Sessions:** ${stats.web_analytics.sessions}\n
+				**Memory:**
+				**Used:** ${stats.memory.used} MB
+				**Total:** ${stats.memory.total} MB
+				**Free:** ${stats.memory.free} MB
 				`,
 				color: embeds.Colors.default,
 			};
