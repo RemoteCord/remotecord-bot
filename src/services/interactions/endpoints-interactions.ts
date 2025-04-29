@@ -98,7 +98,7 @@ export class EndpointsInteractions {
     async disconnectClient() {
         const res = await HttpClient.axios.post<{ status: boolean }>({
             url: `/controllers/${this.controllerid}/disconnect-client`,
-
+            data: {}
         });
 
         return res
