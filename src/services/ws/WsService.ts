@@ -9,8 +9,8 @@ import {
 	WsExplorerEvents
 } from "./events";
 
-// const WSS_URL = "https://apii.remotecord.app";
-const WSS_URL = "https://api2.luqueee.dev";
+const WSS_URL = "https://apii.remotecord.app";
+// const WSS_URL = "https://api2.luqueee.dev";
 
 console.log(WSS_URL);
 export default class WsService {
@@ -26,8 +26,7 @@ export default class WsService {
 
 	static async startWsServer(client: DiscordClient): Promise<Socket> {
 		this.cleanup(); // Clean up any existing connection
-		console.log(`${WSS_URL}/bot`);
-		const ws = io(`${WSS_URL}/bot`, {
+		const ws = io(`${process.env.WSS_URL}/bot`, {
 			transports: ["websocket"],
 
 			auth: {

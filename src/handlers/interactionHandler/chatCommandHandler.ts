@@ -20,6 +20,8 @@ import { EmbedsInteractions } from "@/services/interactions/embeds-interactions"
 import { ConfigService } from "@/shared/ConfigService";
 
 
+
+
 export const runChatCommandHandler = async (
 	client: DiscordClient,
 	interaction: ChatInputCommandInteraction,
@@ -157,7 +159,7 @@ export const runChatCommandHandler = async (
 		const upload_split = res.split("/");
 		const code = upload_split[upload_split.length - 1];
 
-		const uploadUrl = `https://preview.luqueee.dev/upload?code=${code}`;
+		const uploadUrl = `${process.env.BASE_WEB_URL}/upload?code=${code}`;
 
 
 		await interaction.editReply({
