@@ -9,10 +9,7 @@ import {
 	WsExplorerEvents
 } from "./events";
 
-const WSS_URL = "https://apii.remotecord.app";
-// const WSS_URL = "https://api2.luqueee.dev";
 
-console.log(WSS_URL);
 export default class WsService {
 	private static currentSocket: Socket | null = null;
 
