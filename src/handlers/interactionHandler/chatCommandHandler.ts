@@ -7,17 +7,16 @@ import {
 	ActionRowBuilder,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
-	User,
 	type ChatInputCommandInteraction
 } from "discord.js";
 import path from "path";
 import { type Socket } from "socket.io-client";
 import { CommandHandler } from "../CommandHandler";
 import { PermissionHandler } from "../PermissionHandler";
-import { ChatWsServiceHandlers } from "@/services/ws/WsServiceHandlers";
 import { EndpointsInteractions } from "@/services/interactions/endpoints-interactions";
 import { EmbedsInteractions } from "@/services/interactions/embeds-interactions";
 import { ConfigService } from "@/shared/ConfigService";
+import { type WsTasksFromClient, type GetFilesFolder } from "@/types/ws-events.types";
 
 
 
@@ -32,13 +31,9 @@ export const runChatCommandHandler = async (
 
 	const configService = new ConfigService()
 
-
-	const wsServiceHandlers = new ChatWsServiceHandlers(client, ws, interaction);
 	const endpointsInteractions = new EndpointsInteractions(controllerid)
 	const embedsInteractions = new EmbedsInteractions(controllerid, endpointsInteractions)
 
-	const user = await client.users.fetch(interaction.user.id);
-	const dmChannel = await user.createDM();
 
 	const command = client.commands.get(interaction.commandName);
 
@@ -233,6 +228,22 @@ export const runChatCommandHandler = async (
 				command
 			}
 		});
+
+		await interaction.reply({
+			content: `${emojis.Loading} Sending command...`
+		});
+
+		ws.once("getCmdCommand", async (data: { controllerid: string; editReply: boolean }) => {
+			console.log("Message received", data);
+			if (data.controllerid !== controllerid) return;
+
+			await interaction.editReply({
+				content: `${emojis.Success} Command sent successfully!`
+			});
+
+			// await command.run(client, handler, ws, interaction);
+		});
+
 	}
 
 	if (interaction.commandName === "get") {
@@ -268,6 +279,15 @@ export const runChatCommandHandler = async (
 			content: `${emojis.Loading} Getting tasks...`,
 			ephemeral: true
 		});
+
+		ws.once("getTasksFromClient", async (data: WsTasksFromClient) => {
+			if (data.controllerid !== controllerid) return;
+
+
+			await interaction.editReply({
+				content: `${emojis.Success} Tasks received!`,
+			});
+		})
 	}
 
 	if (interaction.commandName === "screenshot") {
@@ -321,11 +341,10 @@ export const runChatCommandHandler = async (
 			client.relativeFolder.set(controllerid, "/");
 		}
 
-		// TODO: PASS MESSAGE ID
+		await interaction.reply({
+			content: `${emojis.Loading} Sending explorer request...`
+		});
 
-		// await interaction.reply({
-		// 	content: `${emojis.Loading} Getting explorer...`
-		// });
 
 		Logger.info("Running explorer", interaction.commandName, folder, controllerid);
 		await HttpClient.axios
@@ -338,28 +357,39 @@ export const runChatCommandHandler = async (
 					relativepath: "/"
 				}
 			})
-			.then(async () => {
-				// await interaction.editReply({
-				// 	content: `${emojis.Loading} Sending explorer request...`
-				// });
-			})
+
 
 			.catch(async (err: unknown) => {
 				const adapterError = (err as AxiosError).response?.data;
 				// console.log("Explorer error", adapterError);
 				if (adapterError.statusCode === 401 || adapterError.statusCode === 401) {
-					await interaction.reply({
+					await interaction.editReply({
 						content: `${emojis.Error} You are not authorized to run this command`,
-						ephemeral: true
 					});
 					return;
 				}
 
-				await interaction.reply({
+				await interaction.editReply({
 					content: `${emojis.Error} Something went wrong!`,
-					ephemeral: true
 				});
 			});
+
+
+		await interaction.editReply({
+			content: `${emojis.Success} Explorer request sended...`
+		});
+
+		ws.once("getFilesFolder", async (data: GetFilesFolder) => {
+			console.log("Message received", data);
+			if (data.controllerid !== controllerid) return;
+
+			await interaction.editReply({
+				content: `${emojis.Success} Explorer request recived!`
+			});
+
+		})
+
+
 	} else {
 		try {
 			await command.run(client, handler, ws, interaction);
@@ -367,7 +397,6 @@ export const runChatCommandHandler = async (
 			console.error(error);
 			await interaction.reply({
 				content: `${emojis.Error} An error occurred while executing this command!\n\`\`\`js\n${error}\n\`\`\``,
-				ephemeral: true
 			});
 		}
 	}
@@ -465,44 +494,41 @@ export const runChatCommandHandler = async (
 
 	if (interaction.commandName === "activate") {
 		Logger.info("Running activate", interaction.user.id);
-		const controllerid = interaction.user.id;
 
 		await interaction.reply({
-			content: `${emojis.Loading} Activating your account...`
+			content: `[Click to activate your account](<https://remotecord.app/discord>)`
 		});
 
-		console.log("Activating account", interaction.user);
+		// console.log("Activating account", interaction.user);
 
 
-		const res = await endpointsInteractions.activateController({
-			picture: interaction.user.avatarURL() ?? fallbackAvatar,
-			name: interaction.user.username
-		})
+		// const res = await endpointsInteractions.activateController({
+		// 	picture: interaction.user.avatarURL() ?? fallbackAvatar,
+		// 	name: interaction.user.username
+		// })
 
 
 
-		// Logger.info("Activate response", JSON.stringify(res));
-		if (res.status) {
-			const user = await client.users.fetch(controllerid);
+		// // Logger.info("Activate response", JSON.stringify(res));
+		// if (res.status) {
 
-			const channel = await user.createDM();
 
-			// console.log("Channel", channel);
-			await interaction.editReply({
-				content: `${emojis.Success} Your account has been activated successfully!`
-			});
-		} else {
-			if (res.isAlreadyActivated) {
-				await interaction.editReply({
-					content: `${emojis.Warning} Your account is already activated. You do not need to activate your account again.`
-				});
-				return;
-			}
+		// 	// console.log("Channel", channel);
+		// 	await interaction.editReply({
+		// 		content: `${emojis.Success} Your account has been activated successfully!`
+		// 	});
+		// } else {
+		// 	if (res.isAlreadyActivated) {
+		// 		await interaction.editReply({
+		// 			content: `${emojis.Warning} Your account is already activated. You do not need to activate your account again.`
+		// 		});
+		// 		return;
+		// 	}
 
-			await interaction.editReply({
-				content: `${emojis.Error} An error occurred while activating your account.`
-			});
-		}
+		// 	await interaction.editReply({
+		// 		content: `${emojis.Error} An error occurred while activating your account.`
+		// 	});
+		// }
 	}
 
 	if (interaction.commandName === "connect") {
@@ -529,11 +555,11 @@ export const runChatCommandHandler = async (
 
 		const components = [];
 
-		const filteredClients = clients.filter((client) => !client.isconnected);
+		const filteredClients = clients.filter((client) => !client.isconnected && client.isactive);
 
 		if (filteredClients.length === 0) {
 			await interaction.editReply({
-				content: `${emojis.Warning} All clients are already in use.`,
+				content: `${emojis.Warning} All clients are already in use or are not active.`,
 				embeds: [embedClients]
 			});
 			return;
@@ -564,7 +590,6 @@ export const runChatCommandHandler = async (
 	}
 
 	if (interaction.commandName === "disconnect") {
-		const controllerid = interaction.user.id;
 
 		await interaction.reply({
 			content: `${emojis.Loading} Disconnecting...`

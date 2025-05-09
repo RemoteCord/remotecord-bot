@@ -64,7 +64,7 @@ export default class WsService {
 
 		ws.on("getWebcams", wsOthersEvents.getWebcams);
 
-		ws.on("getWebcamScreenshot", wsOthersEvents.getWebcamScreenshot)
+		// ws.on("getWebcamScreenshot", wsOthersEvents.getWebcamScreenshot)
 
 		ws.on("close", () => {
 			Logger.warn("Disconnected from WebSocket server");
