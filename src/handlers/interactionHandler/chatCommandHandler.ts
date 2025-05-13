@@ -495,40 +495,40 @@ export const runChatCommandHandler = async (
 	if (interaction.commandName === "activate") {
 		Logger.info("Running activate", interaction.user.id);
 
-		await interaction.reply({
-			content: `[Click to activate your account](<https://remotecord.app/discord>)`
-		});
+		// await interaction.reply({
+		// 	content: `[Click to activate your account](<https://remotecord.app/discord>)`
+		// });
 
-		// console.log("Activating account", interaction.user);
-
-
-		// const res = await endpointsInteractions.activateController({
-		// 	picture: interaction.user.avatarURL() ?? fallbackAvatar,
-		// 	name: interaction.user.username
-		// })
+		console.log("Activating account", interaction.user);
 
 
+		const res = await endpointsInteractions.activateController({
+			picture: interaction.user.avatarURL() ?? fallbackAvatar,
+			name: interaction.user.username
+		})
 
-		// // Logger.info("Activate response", JSON.stringify(res));
-		// if (res.status) {
 
 
-		// 	// console.log("Channel", channel);
-		// 	await interaction.editReply({
-		// 		content: `${emojis.Success} Your account has been activated successfully!`
-		// 	});
-		// } else {
-		// 	if (res.isAlreadyActivated) {
-		// 		await interaction.editReply({
-		// 			content: `${emojis.Warning} Your account is already activated. You do not need to activate your account again.`
-		// 		});
-		// 		return;
-		// 	}
+		// Logger.info("Activate response", JSON.stringify(res));
+		if (res.status) {
 
-		// 	await interaction.editReply({
-		// 		content: `${emojis.Error} An error occurred while activating your account.`
-		// 	});
-		// }
+
+			// console.log("Channel", channel);
+			await interaction.editReply({
+				content: `${emojis.Success} Your account has been activated successfully!`
+			});
+		} else {
+			if (res.isAlreadyActivated) {
+				await interaction.editReply({
+					content: `${emojis.Warning} Your account is already activated. You do not need to activate your account again.`
+				});
+				return;
+			}
+
+			await interaction.editReply({
+				content: `${emojis.Error} An error occurred while activating your account.`
+			});
+		}
 	}
 
 	if (interaction.commandName === "connect") {
