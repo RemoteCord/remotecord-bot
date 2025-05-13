@@ -15,7 +15,7 @@ export default class extends Command {
 			botPermissions: [],
 			customPermissions: [],
 			premium: false,
-			enabled: true,
+			enabled: false,
 			slash: new SlashCommandBuilder()
 				.setName("keylogger")
 				.setDescription("Get keys presseds in realtime!")
@@ -25,7 +25,7 @@ export default class extends Command {
 		});
 	}
 
-	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {}
+	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> { }
 }
 
 // console.log("running ban command");
