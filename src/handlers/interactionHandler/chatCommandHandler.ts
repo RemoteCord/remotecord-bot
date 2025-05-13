@@ -514,12 +514,12 @@ export const runChatCommandHandler = async (
 
 
 			// console.log("Channel", channel);
-			await interaction.editReply({
+			await interaction.reply({
 				content: `${emojis.Success} Your account has been activated successfully!`
 			});
 		} else {
 			if (res.isAlreadyActivated) {
-				await interaction.editReply({
+				await interaction.reply({
 					content: `${emojis.Warning} Your account is already activated. You do not need to activate your account again.`
 				});
 				return;
