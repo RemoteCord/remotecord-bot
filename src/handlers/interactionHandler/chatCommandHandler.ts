@@ -138,7 +138,7 @@ export const runChatCommandHandler = async (
 		}
 	}
 
-	if (interaction.commandName === "upload-large") {
+	if (interaction.commandName === "upload") {
 		await interaction.reply({
 			content: `${emojis.Loading} Getting upload url...`
 		});
@@ -159,42 +159,6 @@ export const runChatCommandHandler = async (
 
 		await interaction.editReply({
 			content: `${uploadUrl}`
-		});
-	}
-
-	if (interaction.commandName === "upload") {
-		const file = interaction.options.getAttachment("file");
-		const controllerid = interaction.user.id;
-
-		await interaction.reply({
-			content: `${emojis.Loading} Uploading file...`
-		});
-
-		await HttpClient.axios.post({
-			url: `/controllers/${controllerid}/upload-file`,
-			data: {
-				fileroute: file?.url
-			}
-		});
-
-		await interaction.editReply({
-			content: `${emojis.Loading} Sending file to client...`
-		});
-
-		ws.removeAllListeners("message");
-		ws.on("message", async (data: { controllerid: string; editReply: boolean }) => {
-			console.log("Message received", data);
-			if (data.controllerid !== controllerid) return;
-			if (data.editReply) {
-				await interaction.editReply({
-					content: `${emojis.Success} File uploaded successfully! ${data.controllerid}`
-				});
-			} else {
-				await interaction.reply({
-					content: `${emojis.Success} File uploaded successfully! ${data.controllerid}`
-				});
-			}
-			// await command.run(client, handler, ws, interaction);
 		});
 	}
 
