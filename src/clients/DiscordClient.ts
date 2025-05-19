@@ -73,7 +73,7 @@ export class DiscordClient extends Client {
 		await EventRegister.discordEventRegister(this, ws);
 		await CommandRegister.registerSlashApi(this);
 		await errorHandling(this, {
-			webhookUrl: "https://discord.com/api/webhooks/1364124042289877003/7vG5gGjCCyxwZos9HbS_44qLr7CQ4X0FWTLtzGTBt6hYdtnl9JtTk1QXFZfi_Zy68Yud"
+			webhookUrl: process.env.WEBHOOK_URL ?? "",
 
 		})
 
