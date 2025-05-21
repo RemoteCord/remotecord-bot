@@ -9,7 +9,7 @@ import { emojis } from "@/shared";
 // import { PermissionHandler } from "@/handlers/PermissionHandler";
 
 export const GLOBAL_COMMANDS = ["connect", "clients", "add-client", "delete-client", "activate", "stats"]; // Commands that do not need a client connection
-export const ALLOWED_COMMANDS_OUTSIDE_DM = ["activate"]
+export const ALLOWED_COMMANDS_OUTSIDE_DM = ["activate", "stats"]
 
 
 const verifyClientConnection = async (ownerid: string, interaction: Interaction) => {
@@ -36,7 +36,7 @@ const verifyClientConnection = async (ownerid: string, interaction: Interaction)
 export const verifyInteractionIsAllowed = async (interaction: Interaction) => {
 	if (interaction.channel?.type !== ChannelType.DM) {
 
-		if (interaction.isChatInputCommand() && !ALLOWED_COMMANDS_OUTSIDE_DM.includes(interaction.commandName)) {
+		if (interaction.isChatInputCommand() && ALLOWED_COMMANDS_OUTSIDE_DM.includes(interaction.commandName)) {
 
 			return true
 		}
