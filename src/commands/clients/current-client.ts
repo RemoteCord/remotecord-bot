@@ -27,14 +27,12 @@ export default class extends Command {
 	async run(client: DiscordClient, handler: CommandHandler, ...args: any[]): Promise<void> {
 		// get clients
 		const ownerid = handler.user.id;
-		const { data } = await HttpClient.axios.get<{
-			data: {
-				client: {
-					id: string;
-				};
-			};
+		const data = await HttpClient.axios.get<{
+
+			activeclient: string;
+
 		}>({
-			url: `/controllers/${ownerid}/current-client`
+			url: `/controllers/${ownerid}`
 		});
 
 		console.log(data);
@@ -48,7 +46,7 @@ export default class extends Command {
 			fields: [
 				{
 					name: "",
-					value: data.client.id
+					value: data.activeclient
 				}
 			]
 		};

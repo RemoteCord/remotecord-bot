@@ -16,7 +16,8 @@ import { PermissionHandler } from "../PermissionHandler";
 import { EndpointsInteractions } from "@/services/interactions/endpoints-interactions";
 import { EmbedsInteractions } from "@/services/interactions/embeds-interactions";
 import { ConfigService } from "@/shared/ConfigService";
-import { type WsTasksFromClient, type GetFilesFolder } from "@/types/ws-events.types";
+import { type WsTasksFromClient, type GetFilesFolder, type WsDownloadFile } from "@/types/ws-events.types";
+import { WsFilesEvents } from "@/services/ws/events";
 
 
 
@@ -62,6 +63,10 @@ export const runChatCommandHandler = async (
 		color: client.config.colors.burple,
 		prefix: client.config.bot.PREFIX
 	});
+
+
+	const wsFilesEvents = new WsFilesEvents(client);
+
 
 	if (interaction.commandName === "stats") {
 
@@ -215,13 +220,19 @@ export const runChatCommandHandler = async (
 		const route = interaction.options.getString("route") ?? "";
 		const folder = interaction.options.getString("folder") ?? "";
 		Logger.info("Running get command", interaction.commandName, route, folder, controllerid);
-		void HttpClient.axios.post({
+		await HttpClient.axios.post({
 			url: `/controllers/${controllerid}/file`,
 			data: {
 				fileroute: path.join(folder, route),
 				controllerid
 			}
 		});
+
+		await interaction.reply({
+			content: `${emojis.Loading} Getting file.`
+		});
+
+		ws.once("downloadFile", async (data: WsDownloadFile) => wsFilesEvents.reciveFile(data, interaction));
 	}
 
 	if (interaction.commandName === "tasks") {

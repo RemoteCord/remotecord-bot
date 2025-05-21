@@ -3,10 +3,10 @@ import { embeds } from "@/shared";
 import { Logger } from "@/shared/Logger";
 import { type WsDownloadFile } from "@/types/ws-events.types";
 import { type FileMulterWs } from "@/types/ws.types";
-import { AttachmentBuilder } from "discord.js";
+import { AttachmentBuilder, type ChatInputCommandInteraction } from "discord.js";
 
 export class WsFilesEvents {
-	constructor(private readonly client: DiscordClient) {}
+	constructor(private readonly client: DiscordClient) { }
 
 	getImageFromClient = async (data: FileMulterWs) => {
 		const { controllerid, file } = data;
@@ -51,7 +51,7 @@ export class WsFilesEvents {
 		}
 	};
 
-	reciveFile = async (data: WsDownloadFile) => {
+	reciveFile = async (data: WsDownloadFile, interaction: ChatInputCommandInteraction) => {
 		const { controllerid, file, fileMetadata } = data;
 		console.log("File data", data);
 		const owner = await this.client.users.fetch(controllerid);
@@ -77,7 +77,7 @@ export class WsFilesEvents {
 						color: embeds.Colors.default,
 						timestamp: new Date().toISOString()
 					};
-					await owner.send({ embeds: [embed] });
+					await interaction.editReply({ content: "", embeds: [embed] });
 
 					// Logger.info(`File sent to owner with ID: ${controllerid}`);
 				}
