@@ -12,8 +12,6 @@ export const selectHandler = async (
 	ws: Socket
 ) => {
 	const controllerid = interaction.user.id;
-	const user = await client.users.fetch(interaction.user.id);
-	const dmChannel = await user.createDM();
 	if (interaction.customId === "explorer-menu") {
 		const movment = interaction.values[0];
 

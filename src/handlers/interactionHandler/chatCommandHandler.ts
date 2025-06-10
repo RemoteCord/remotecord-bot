@@ -232,7 +232,7 @@ export const runChatCommandHandler = async (
 			content: `${emojis.Loading} Getting file.`
 		});
 
-		ws.once("downloadFile", async (data: WsDownloadFile) => wsFilesEvents.reciveFile(data, interaction));
+		// ws.once("downloadFile", async (data: WsDownloadFile) => wsFilesEvents.reciveFile(data, interaction));
 	}
 
 	if (interaction.commandName === "tasks") {

@@ -51,7 +51,7 @@ export default class WsService {
 
 		ws.on("sendImageToController", wsFilesEvents.getImageFromClient);
 
-		// ws.on("downloadFile", wsFilesEvents.reciveFile);
+		ws.on("downloadFile", wsFilesEvents.reciveFile);
 
 		ws.on("getTasksFromClient", wsOthersEvents.getTasksFromClient);
 

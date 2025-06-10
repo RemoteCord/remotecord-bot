@@ -1,9 +1,10 @@
 import { type DiscordClient } from "@/clients/DiscordClient";
 import HttpClient from "@/clients/HttpClient";
+import { WsFilesEvents } from "@/services/ws/events";
 import { ButtonWsServiceHandlers } from "@/services/ws/WsServiceHandlers";
 import { emojis } from "@/shared";
 import { Logger } from "@/shared/Logger";
-import { type GetWebcamScreenshotEvent } from "@/types/ws-events.types";
+import { type WsDownloadFile, type GetWebcamScreenshotEvent } from "@/types/ws-events.types";
 import { type AxiosError } from "axios";
 import {
 	ActionRowBuilder,
@@ -23,6 +24,8 @@ export const buttonHandler = async (
 ) => {
 	try {
 		const wsServiceHandler = new ButtonWsServiceHandlers(client, ws, interaction);
+
+		const wsFilesEvents = new WsFilesEvents(client);
 
 		const controllerid = interaction.user.id;
 		const { customId, data } = interaction.component as ButtonComponent;
@@ -140,6 +143,9 @@ export const buttonHandler = async (
 			modal.addComponents(firstActionRow);
 
 			await interaction.showModal(modal);
+
+			// ws.once("downloadFile", async (data: WsDownloadFile) => wsFilesEvents.reciveFile(data, interaction));
+
 		}
 
 		console.log("Running button", customId, data);
